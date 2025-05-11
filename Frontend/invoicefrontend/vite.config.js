@@ -5,4 +5,6 @@ export default defineConfig({
     tailwindcss(),
     // require('flowbite/plugin')
   ],
+
+
 })

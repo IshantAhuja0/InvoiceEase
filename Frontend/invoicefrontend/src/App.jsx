@@ -1,19 +1,30 @@
-import React from 'react'
-import { useState } from 'react'
+import { initFlowbite } from 'flowbite';
 import './App.css'
 import 'flowbite';
-import { initFlowbite } from 'flowbite';
 
-import Sidebar from './components/Sidebar'
-import Navbar from './components/Navbar'
-import Another from './components/another'
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './main-components/Layout';
 
 function App() {
   return (
-    <>
-      <Sidebar  />
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          Add more nested routes here
+        </Route>
+        {/* Define other routes that don't use the layout outside the Layout Route */}
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-export default App
+export default App;
+
+
+      //   <Route path="/" element={<Layout />}>
+      //     Add more nested routes here
+      // // <Route index element={<Home />} /> {/* Default child route for / */}
+      // // <Route path="about" element={<About />} />
+      // // <Route path="dashboard" element={<Dashboard />} /> 
+      //   </Route>
