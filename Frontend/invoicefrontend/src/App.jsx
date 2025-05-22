@@ -7,19 +7,23 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './main-components/Layout';
 import Templates from './components/Templates';
 import InvoiceForm from './components/InvoiceForm';
-
+import Home from './components/Home';
+import Register from './components/Register';
+import Login from './components/Login';
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          Add more nested routes here
-     <Route path="/templates" element={<Templates />} />
-     <Route path="/invoiceform" element={<InvoiceForm />} /> 
-        </Route>
-        {/* Define other routes that don't use the layout outside the Layout Route */}
-      </Routes>
-    </BrowserRouter>
+    // <BrowserRouter>
+    //   <Routes>
+    //     <Route path="/" element={<Layout />}>
+    //       Add more nested routes here
+    //  <Route path="/templates" element={<Templates />} />
+    //  <Route path="/invoiceform" element={<InvoiceForm />} /> 
+    //     </Route>
+    //     {/* Define other routes that don't use the layout outside the Layout Route */}
+    //   </Routes>
+    // </BrowserRouter>
+    <Login/>
+
   );
 }
 
