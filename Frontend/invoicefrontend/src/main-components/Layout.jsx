@@ -26,15 +26,21 @@ const Layout = () => {
   }, [isOpen]);
 
   return (
-    <div className="flex h-screen w-screen">
-      <Sidebar isOpen={isOpen} sidebarRef={sidebarRef} />
-      <div className="flex flex-col ">
-        <Navbar toggleSidebar={toggleSidebar} />
-        <main className="p-4 overflow-y-auto h-full">
-          <Outlet /> {/* Renders nested routes */}
-        </main>
-      </div>
-    </div>
+<div className="flex h-screen w-screen overflow-hidden">
+  {/* Sidebar */}
+  <Sidebar isOpen={isOpen} sidebarRef={sidebarRef} />
+
+  {/* Right side: Navbar + Content */}
+  <div className="flex flex-col flex-1 h-screen md:w-32 sm:w-32">
+    <Navbar toggleSidebar={toggleSidebar} />
+
+    {/* Main content area */}
+    <main className="flex-1 overflow-y-auto p-4 bg-gray-50 lg:ml-54 mt-12 md:ml-46 sm:ml-46">
+      <Outlet />
+    </main>
+  </div>
+</div>
+
   );
 };
 
