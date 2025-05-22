@@ -1,5 +1,7 @@
 @import "tailwindcss";
 /* Layout.css */
+
+
 .app-layout {
   display: flex;
   min-height: 100vh; /* Ensure full viewport height */
