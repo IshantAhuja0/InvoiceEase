@@ -5,13 +5,13 @@ import React from "react";
 import App from "./App.jsx";
 import TemplateContextProvider from "../Context/TemplateContextProvider.jsx";
 import { InvoiceContextProvider } from "../Context/InvoiceContext.jsx";
+import { AuthProvider } from "../Context/AuthContext.jsx";
+import AppProviders from "../Context/AppProviders.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <InvoiceContextProvider>
-      <TemplateContextProvider>
-        <App />
-      </TemplateContextProvider>
-    </InvoiceContextProvider>
+    <AppProviders>
+      <App />
+    </AppProviders>
   </StrictMode>
 );

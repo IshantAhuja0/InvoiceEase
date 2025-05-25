@@ -1,6 +1,6 @@
-import React,{createContext, useState} from 'react'
-const InvoiceContext=createContext();
-const InvoiceContextProvider=({children})=>{
+import React, { createContext, useMemo, useState } from "react";
+const InvoiceContext = createContext();
+const InvoiceContextProvider = ({ children }) => {
   const [items, setItems] = useState([
     { description: "", quantity: 1, price: 0, tax: 0 },
   ]);
@@ -21,24 +21,34 @@ const InvoiceContextProvider=({children})=>{
     customerAddress: "",
     customerEmail: "",
     customerPhone: "",
-    invoiceNo:"",
-    date:""
+    invoiceNo: "",
+    date: "",
   });
-  let contextValue={
+
+  // let contextValue = {
+  //   firmInfo,
+  //   setFirmInfo,
+  //   items,
+  //   setItems,
+  //   customerInfo,
+  //   setCustomerInfo,
+  //   invoiceMeta,
+  //   setInvoiceMeta,
+  // };
+  let content=useMemo(()=>({
     firmInfo,
     setFirmInfo,
     items,
     setItems,
     customerInfo,
     setCustomerInfo,
-    invoiceMeta, 
-    setInvoiceMeta
-  }
-  return(
-    <InvoiceContext.Provider value={contextValue}>
+    invoiceMeta,
+    setInvoiceMeta,
+  }),[customerInfo,firmInfo,items,invoiceMeta])
+  return (
+    <InvoiceContext.Provider value={content}>
       {children}
     </InvoiceContext.Provider>
-  )
-}
-export  {InvoiceContext,InvoiceContextProvider};
-
+  );
+};
+export { InvoiceContext, InvoiceContextProvider };
