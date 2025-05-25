@@ -1,13 +1,11 @@
 import { MongoClient } from 'mongodb';
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 
-dotenv.config();
-
-const url = 'mongodb+srv://first:first@democluster.dsslt6c.mongodb.net/';
+// dotenv.config();
+//or use direct uri of mongo
+const url = 'mongodb+srv://first:first@democluster.dsslt6c.mongodb.net';
 const dbName = 'invoice_backend';
-
 let db;
-
 const client = new MongoClient(url);
 
 async function connectDB() {
