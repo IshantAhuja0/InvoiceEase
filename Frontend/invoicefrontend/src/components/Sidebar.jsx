@@ -50,7 +50,7 @@ export default function Sidebar({ isOpen, sidebarRef }) {
       ref={sidebarRef}
       className={`w-46 fixed top-16 left-0 z-40 lg:w-54 h-[calc(100vh-4rem)] bg-blue-950 text-white transition-transform duration-300 ease-in-out sm:translate-x-0 ${
         isOpen ? "translate-x-0" : "-translate-x-full"
-      }`}
+      }`} 
       aria-label="Sidebar"
     >
       <div className="h-full px-4 py-6 overflow-y-auto">
