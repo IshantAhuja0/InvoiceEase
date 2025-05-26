@@ -4,7 +4,7 @@ import { getDB } from '../../Backend/Mongo/mongo.js';
 const login = async (req, res) => {
   try {
     let { email, password } = req.body;
-    let db = getDB();
+    let db = await getDB();
     let collection = db.collection('register_users');
     let result = await collection.findOne({ email });
 

@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
 app.use('/', route);
 
 // Connect DB and start server
-connectDB()
+ connectDB()
 .then(()=>{
   app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
@@ -25,14 +25,3 @@ connectDB()
 })
 .catch ((err)=> console.error("❌ Failed to connect to DB or start server:", err))
 
-// try {
-//   console.log("🔁 Connecting to MongoDB...");
-//   const dbConnection = await connectDB();
-//   console.log("✅ Connected to DB");
-
-//   app.listen(PORT, () => {
-//     console.log(`🚀 Server running at http://localhost:${PORT}`);
-//   });
-// } catch (err) {
-//   console.error("❌ Failed to connect to DB or start server:", err);
-// }

@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import { checkLoginForRegister } from './LoginUser.js';
 
 const registerUser = async (req, res) => {
-  try {
+  try { 
     const { name, email, mobile, password } = req.body;
 
     // Check if user is already registered
