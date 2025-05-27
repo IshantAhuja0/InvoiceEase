@@ -20,7 +20,7 @@ const storeInvoice = async (req, res) => {
       items,
       createdAt: new Date()         // Store timestamp
     });
-    if (!result) {
+    if (!result.acknowledged) {
       return res.status(200).send({
         status: 200,
         message: "Invoice stored in DB successfully",

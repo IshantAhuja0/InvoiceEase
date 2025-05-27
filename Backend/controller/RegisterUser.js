@@ -1,7 +1,7 @@
 import { getDB } from '../Mongo/mongo.js';
 import bcrypt from 'bcrypt';
 import { checkLoginForRegister } from './LoginUser.js';
-
+import jwt from "jsonwebtoken"
 const registerUser = async (req, res) => {
   try { 
     const { name, email, mobile, password } = req.body;
@@ -26,11 +26,25 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
       createdAt: new Date()
     });
+ 
+    if(!result.acknowledged){
+  console.log("problem while register_users in db")
+  return res.status(500).send({
+    status:500,
+    message:"user not registered problem while insertig in db RegisterUser.js",
+    insertId:result.insertedId,
+  })
+}
+      const option = {
+        expiresIn: "1d",
+      };
+      const token = jwt.sign(user, process.env.JWT_SECRET, option);
 
     return res.status(200).send({
       status: 200,
       message: "User registered successfully",
-      result
+      result,
+      token
     });
   } catch (err) {
     console.error('❌ Error in RegisterUser.js:', err.message);

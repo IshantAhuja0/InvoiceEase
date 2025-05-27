@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { getDB } from '../../Backend/Mongo/mongo.js';
+import jwt from 'jsonwebtoken';
 
 const login = async (req, res) => {
   try {
@@ -16,12 +17,16 @@ const login = async (req, res) => {
     if (!matchPassword) {
       throw new Error("Password doesn't match");
     }
-
+      const option = {
+        expiresIn: "1d",
+      };
+      const token = jwt.sign(user, process.env.JWT_SECRET, option);
     res.send({
       status: 200,
       message: 'Login successful',
       userId: result._id,
       response: result,
+      token
     });
   } catch (error) {
     console.log('Error occurred while logging in user:', error);

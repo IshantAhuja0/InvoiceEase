@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import { connectDB } from "./Mongo/mongo.js";
 import route from "./Routes/Route.js";
+import authRoute from "./Routes/authRoute.js";
+import verifyJWT from "./Middlewares/verifyJWT.js";
 // import dotenv from 'dotenv'
 // dotenv.config();
 const app = express();
@@ -15,6 +17,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/', route);
+app.use('/', verifyJWT,authRoute);
 
 // Connect DB and start server
  connectDB()
