@@ -13,7 +13,7 @@ const InvoiceContextProvider = ({ children }) => {
     firmPhone: "",
   });
 
-  const [invoiceMeta, setInvoiceMeta] = useState({ invoiceNo: "", date: "" });
+  const [invoiceMeta, setInvoiceMeta] = useState({ invoiceNo: 1, date: "" });
 
   const [customerInfo, setCustomerInfo] = useState({
     customerName: "",
@@ -24,27 +24,19 @@ const InvoiceContextProvider = ({ children }) => {
     invoiceNo: "",
     date: "",
   });
-
-  // let contextValue = {
-  //   firmInfo,
-  //   setFirmInfo,
-  //   items,
-  //   setItems,
-  //   customerInfo,
-  //   setCustomerInfo,
-  //   invoiceMeta,
-  //   setInvoiceMeta,
-  // };
-  let content=useMemo(()=>({
-    firmInfo,
-    setFirmInfo,
-    items,
-    setItems,
-    customerInfo,
-    setCustomerInfo,
-    invoiceMeta,
-    setInvoiceMeta,
-  }),[customerInfo,firmInfo,items,invoiceMeta])
+  let content = useMemo(
+    () => ({
+      firmInfo,
+      setFirmInfo,
+      items,
+      setItems,
+      customerInfo,
+      setCustomerInfo,
+      invoiceMeta,
+      setInvoiceMeta,
+    }),
+    [customerInfo, firmInfo, items, invoiceMeta]
+  );
   return (
     <InvoiceContext.Provider value={content}>
       {children}

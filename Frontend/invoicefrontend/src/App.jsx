@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./main-components/Layout";
 import Templates from "./components/Templates";
 import InvoiceForm from "./components/InvoiceForm";
+import Home from "./components/Home";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 function App() {
   return (
@@ -13,9 +16,12 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           Add more nested routes here
+          <Route index path="/" element={<Home />} />
           <Route path="/templates" element={<Templates />} />
           <Route path="/invoiceform" element={<InvoiceForm />} />
           <Route path="/bill" element={<InvoicePDF />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Route>
         {/* Define other routes that don't use the layout outside the Layout Route */}
       </Routes>

@@ -1,6 +1,6 @@
-import React,{createContext,useState} from "react";
+import React,{createContext,useState,useMemo} from "react";
 const AuthContext=createContext();
-export const AuthProvider=({children})=>{
+ const AuthProvider=({children})=>{
 let [user,setUser]=useState(null)
 const login=(data)=>setUser(data)
 const logout=()=>setUser(null)
