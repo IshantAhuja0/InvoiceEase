@@ -34,7 +34,7 @@ const login = async (req, res) => {
   }
 };
 
-async function checkLoginForRegister({ email, password }) {
+async function checkLoginForRegister({ email }) {
   try {
     let db = await getDB();
     let collection = db.collection('register_users');

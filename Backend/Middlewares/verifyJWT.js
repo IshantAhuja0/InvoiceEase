@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
-require('dotenv').config()
+// import  dotenv  from "dotenv";
+// dotenv.config()
 const verifyJWT = async (req, res, next) => {
   let token = req.body.token
   if (!token) {
@@ -9,7 +10,8 @@ const verifyJWT = async (req, res, next) => {
     });
   }
   try {
-    const decodeToken = jwt.verify(token, process.env.JWT_SECRET)
+    const decodeToken = jwt.verify(token, "secretKeyInvoice")
+    // const decodeToken = jwt.verify(token, process.env.JWT_SECRET)
     req.user = decodeToken
     next()
   }

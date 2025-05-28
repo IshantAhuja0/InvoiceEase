@@ -1,14 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  User,
-  Phone,
-  Mail,
-  Lock,
-  ShieldCheck,
-} from "lucide-react";
-
+import { User, Phone, Mail, Lock, ShieldCheck } from "lucide-react";
+import axios from "axios"
 export default function Register() {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -16,30 +10,58 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
-    if (password !== confirmPassword) {
-      setError("❗ Passwords do not match");
-      return;
-    }
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (password !== confirmPassword) {
+    setError("❗ Passwords do not match");
+    return;
+  }
+
+  const user = { name, email, password, mobile };
+  console.log(user);
+
+try {
+  const res = await axios.post("http://localhost:5000/register", user);
+  
+  console.log("✅ HTTP status:", res.status);       // This shows 201 if successful
+  console.log("🟦 Message from server:", res.data.message);
+  
+  if (res.status === 201) {
     alert("✅ Registration Successful!");
-  };
+    setStatus(201);
+    setError(""); // clear error
+  }
 
-  const InputWithIcon = ({ icon: Icon, ...props }) => (
-    <div className="flex items-center border border-blue-400 rounded-xl px-4 py-3 bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-700 transition">
-      <Icon className="text-blue-700 mr-3 w-5 h-5" />
-      <input
-        className="w-full outline-none text-sm placeholder-blue-500"
-        {...props}
-      />
-    </div>
-  );
+} catch (err) {
+  const status = err.response?.status || 500;
+  const message = err.response?.data?.message || "Something went wrong";
+
+  console.log("❌ HTTP Error Status:", status); // This shows 409 if already exists
+
+  setStatus(status);
+  setError(message);
+
+  if (status === 404) {
+    setError("⚠️ User already exists. Login or create a new account.");
+  }
+}
+
+
+};
+
+    
+
+  const inputClasses =
+    "w-full pl-10 pr-4 py-3 border border-blue-400 rounded-xl bg-white text-sm placeholder-blue-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-700 transition";
+
+  const iconClasses =
+    "absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-700 w-5 h-5";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700
- p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 p-6">
       <motion.div
         initial={{ opacity: 0, scale: 0.85, y: 50 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -64,46 +86,65 @@ export default function Register() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          <InputWithIcon
-            type="text"
-            placeholder="Full Name"
-            icon={User}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <InputWithIcon
-            type="tel"
-            placeholder="Mobile Number"
-            icon={Phone}
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
-            required
-          />
-          <InputWithIcon
-            type="email"
-            placeholder="Email"
-            icon={Mail}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <InputWithIcon
-            type="password"
-            placeholder="Password"
-            icon={Lock}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <InputWithIcon
-            type="password"
-            placeholder="Confirm Password"
-            icon={ShieldCheck}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <User className={iconClasses} />
+            <input
+              type="text"
+              placeholder="Full Name"
+              className={inputClasses}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <Phone className={iconClasses} />
+            <input
+              type="tel"
+              placeholder="Mobile Number"
+              className={inputClasses}
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <Mail className={iconClasses} />
+            <input
+              type="email"
+              placeholder="Email"
+              className={inputClasses}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <Lock className={iconClasses} />
+            <input
+              type="password"
+              placeholder="Password"
+              className={inputClasses}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <ShieldCheck className={iconClasses} />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              className={inputClasses}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
 
           <motion.button
             type="submit"

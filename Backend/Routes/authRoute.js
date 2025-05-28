@@ -3,6 +3,6 @@ import storeInvoice from '../controller/StoreInvoice.js';
 
 const authRoute = express.Router();
 
-route.post('/storeinvoice',storeInvoice)
+authRoute.post('/storeinvoice',storeInvoice)
 
 export default authRoute;

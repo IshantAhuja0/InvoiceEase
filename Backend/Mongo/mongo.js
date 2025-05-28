@@ -1,6 +1,8 @@
 import { MongoClient } from 'mongodb';
-
-const url = 'mongodb+srv://first:first@democluster.dsslt6c.mongodb.net';
+// import dotenv from "dotenv"
+// dotenv.config()
+// const url = process.env.MONGODB_URI;
+const url = "mongodb+srv://first:first@democluster.dsslt6c.mongodb.net/testdb?retryWrites=true&w=majority";
 const dbName = 'invoice_backend';
 
 let client;
@@ -12,6 +14,7 @@ async function connectDB() {
       client = new MongoClient(url);
       await client.connect();
       db = client.db(dbName);
+
       console.log('✅ Connected to MongoDB Atlas');
     }
   } catch (err) {
