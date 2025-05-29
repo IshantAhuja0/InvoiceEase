@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { User, Phone, Mail, Lock, ShieldCheck } from "lucide-react";
-import axios from "axios"
+import axios from "axios";
 export default function Register() {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -12,47 +12,42 @@ export default function Register() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (password !== confirmPassword) {
-    setError("❗ Passwords do not match");
-    return;
-  }
+    if (password !== confirmPassword) {
+      setError("❗ Passwords do not match");
+      return;
+    }
 
-  const user = { name, email, password, mobile };
-  console.log(user);
+    const user = { name, email, password, mobile };
+    console.log(user);
 
-try {
-  const res = await axios.post("http://localhost:5000/register", user);
-  
-  console.log("✅ HTTP status:", res.status);       // This shows 201 if successful
-  console.log("🟦 Message from server:", res.data.message);
-  
-  if (res.status === 201) {
-    alert("✅ Registration Successful!");
-    setStatus(201);
-    setError(""); // clear error
-  }
+    try {
+      const res = await axios.post("http://localhost:5000/register", user);
 
-} catch (err) {
-  const status = err.response?.status || 500;
-  const message = err.response?.data?.message || "Something went wrong";
+      console.log("✅ HTTP status:", res.status); // This shows 201 if successful
+      console.log("🟦 Message from server:", res.data.message);
 
-  console.log("❌ HTTP Error Status:", status); // This shows 409 if already exists
+      if (res.status === 201) {
+        alert("✅ Registration Successful!");
+        setStatus(201);
+        setError(""); // clear error
+      }
+    } catch (err) {
+      const status = err.response?.status || 500;
+      const message = err.response?.data?.message || "Something went wrong";
 
-  setStatus(status);
-  setError(message);
+      console.log("❌ HTTP Error Status:", status); // This shows 409 if already exists
 
-  if (status === 404) {
-    setError("⚠️ User already exists. Login or create a new account.");
-  }
-}
+      setStatus(status);
+      setError(message);
 
-
-};
-
-    
+      if (status === 404) {
+        setError("⚠️ User already exists. Login or create a new account.");
+      }
+    }
+  };
 
   const inputClasses =
     "w-full pl-10 pr-4 py-3 border border-blue-400 rounded-xl bg-white text-sm placeholder-blue-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-700 transition";

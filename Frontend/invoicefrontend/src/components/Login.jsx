@@ -7,15 +7,51 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // Clear previous error
+
     if (!email || !password) {
-      setError("Please fill both fields");
+      setError("❗ Please fill in both fields.");
       return;
     }
-    setError("");
-    alert(`Welcome back, ${email.split("@")[0]}!`);
+
+    try {
+      const response = await axios.post("http://localhost:5000/login", {
+        email,
+        password,
+      });
+
+      console.log("✅ HTTP Status:", response.status);
+      console.log("✅ Message:", response.data.message);
+
+      // Login success
+      alert("✅ Login successful!");
+      
+      // Optional: Save token to localStorage or context
+      localStorage.setItem("token", response.data.token);
+
+      // Redirect or navigate
+      // navigate("/dashboard");
+
+    } catch (error) {
+      const status = error.response?.status;
+      const message = error.response?.data?.message;
+
+      console.log("❌ Login error:", status, message);
+
+      if (status === 401) {
+        setError("❗ User not found. Invalid email!");
+      } else if (status === 402) {
+        setError("❗ Incorrect password!");
+      } else {
+        setError(`❗ ${message || "Internal Server Error"}`);
+      }
+    }
   };
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 p-6 font-sans">

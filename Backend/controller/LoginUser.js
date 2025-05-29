@@ -10,18 +10,31 @@ const login = async (req, res) => {
     let result = await collection.findOne({ email });
 
     if (!result) {
-      throw new Error('User not found!');
+      console.log('User not found!');
+      res.status(401).json({
+        status:401,
+        message:"User not found . Invalid email !"
+      })
     }
-
+    
     let matchPassword = await bcrypt.compare(password, result.password);
     if (!matchPassword) {
-      throw new Error("Password doesn't match");
+      console.log("Password doesn't match");
+      return res.status(402).json({
+        status:402,
+        message:"Password doesn't matched!"
+      })
     }
-      const option = {
-        expiresIn: "1d",
-      };
-      const token = jwt.sign(user, process.env.JWT_SECRET, option);
-    res.send({
+    const payload = {
+      name:result.name,
+      mobile:result.mobile,
+      email:result.email,
+      id:result._id,
+      id: result.insertedId,
+    };
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+    res.status(200).send({
       status: 200,
       message: 'Login successful',
       userId: result._id,

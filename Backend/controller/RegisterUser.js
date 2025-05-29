@@ -15,16 +15,15 @@ const registerUser = async (req, res) => {
     }
 
     // Check if user is already registered
-    const checkLogin = await checkLoginForRegister({ email, password });
-    console.log('Check login status:', checkLogin.status);
+const checkLogin = await checkLoginForRegister({ email });
 
-    if (checkLogin.status !== 404) {
-  console.log('User is already registered');
+if (checkLogin.status !== 404) {
   return res.status(409).send({
     status: 409,
     message: 'User is already registered'
   });
 }
+  
 
 
     const db = await getDB();
