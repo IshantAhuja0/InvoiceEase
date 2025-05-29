@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { User, Phone, Mail, Lock, ShieldCheck } from "lucide-react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 export default function Register() {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -11,7 +12,7 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
-
+  const navigate=useNavigate()
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -33,6 +34,16 @@ export default function Register() {
         alert("✅ Registration Successful!");
         setStatus(201);
         setError(""); // clear error
+        
+        localStorage.setItem(
+          "user data",
+          JSON.stringify({
+            email: email,
+            token: response.data.token,
+          })
+        );
+
+        navigate("/templates")
       }
     } catch (err) {
       const status = err.response?.status || 500;
@@ -63,12 +74,22 @@ export default function Register() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="bg-white/90 backdrop-blur-lg p-8 rounded-3xl shadow-2xl w-full max-w-lg"
       >
-        <h2 className="text-3xl font-bold text-center text-blue-900 mb-4">
-          Join InvoiceEase Today
-        </h2>
-        <p className="text-center text-blue-700 text-sm italic mb-6">
-          Simplify billing like a pro.
-        </p>
+        <motion.h2
+          className="text-4xl font-bold text-center text-blue-900 mb-2 select-none"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          Join InvoiseEase Today.
+        </motion.h2>
+        <motion.p
+          className="text-center text-blue-700 text-sm italic mb-6"
+          initial={{ y: -10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          Simplify Billing like a pro.
+        </motion.p>
 
         {error && (
           <motion.div

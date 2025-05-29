@@ -1,43 +1,51 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock } from "lucide-react";
-
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+const navigate=useNavigate()
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError(""); // Clear previous error
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(""); // Clear previous error
+  if (!email || !password) {
+    setError("❗ Please fill in both fields.");
+    return;
+  }
 
-    if (!email || !password) {
-      setError("❗ Please fill in both fields.");
-      return;
-    }
+  try {
+    const response = await axios.post("http://localhost:5000/login", {
+      email,
+      password,
+    });
 
-    try {
-      const response = await axios.post("http://localhost:5000/login", {
-        email,
-        password,
-      });
+    console.log("✅ HTTP Status:", response.status);
+    console.log("✅ Message:", response.data.message);
 
-      console.log("✅ HTTP Status:", response.status);
-      console.log("✅ Message:", response.data.message);
+    // Login success
+    alert("✅ Login successful!");
 
-      // Login success
-      alert("✅ Login successful!");
-      
-      // Optional: Save token to localStorage or context
-      localStorage.setItem("token", response.data.token);
+    // Save token to localStorage or context
+localStorage.setItem("user data", JSON.stringify({
+    email: email,
+    token: response.data.token
+}));
 
-      // Redirect or navigate
-      // navigate("/dashboard");
 
-    } catch (error) {
-      const status = error.response?.status;
-      const message = error.response?.data?.message;
+    // Optionally redirect or navigate to dashboard
+    // navigate("/dashboard");
+    navigate("/invoices")
+
+  } catch (error) {
+    if (error.response) {
+      // Backend returned a response (error HTTP status)
+      const status = error.response.status;
+      const message = error.response.data.message;
 
       console.log("❌ Login error:", status, message);
 
@@ -48,8 +56,17 @@ export default function Login() {
       } else {
         setError(`❗ ${message || "Internal Server Error"}`);
       }
+    } else if (error.request) {
+      // Request was made but no response received (e.g. network error)
+      console.log("❌ No response from server:", error.request);
+      setError("❗ Server not responding. Please try again later.");
+    } else {
+      // Something else happened while setting up the request
+      console.log("❌ Error:", error.message);
+      setError("❗ An unexpected error occurred.");
     }
-  };
+  }
+};
 
 
 

@@ -9,6 +9,7 @@ import InvoiceForm from "./components/InvoiceForm";
 import Home from "./components/Home";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Invoices from "./components/Invoices";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/bill" element={<InvoicePDF />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/invoices" element={<Invoices />} />
         </Route>
         {/* Define other routes that don't use the layout outside the Layout Route */}
       </Routes>

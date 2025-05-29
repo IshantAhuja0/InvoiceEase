@@ -35,7 +35,7 @@ const Layout = () => {
     <Navbar toggleSidebar={toggleSidebar} />
 
     {/* Main content area */}
-    <main className="flex-1 overflow-y-auto p-4 bg-gray-50 lg:ml-54 mt-12 md:ml-46 sm:ml-46">
+    <main className="flex-1 overflow-y-auto  bg-gray-50 lg:ml-54 mt-12 md:ml-46 sm:ml-46">
       <Outlet />
     </main>
   </div>
