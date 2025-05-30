@@ -11,7 +11,7 @@ const login = async (req, res) => {
 
     if (!result) {
       console.log('User not found!');
-      res.status(401).json({
+     return res.status(401).json({
         status:401,
         message:"User not found . Invalid email !"
       })
@@ -30,11 +30,10 @@ const login = async (req, res) => {
       mobile:result.mobile,
       email:result.email,
       id:result._id,
-      id: result.insertedId,
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
-    res.status(200).send({
+   return res.status(200).send({
       status: 200,
       message: 'Login successful',
       userId: result._id,

@@ -1,7 +1,7 @@
 import { getDB } from '../../Backend/Mongo/mongo.js';
 const storeInvoice = async (req, res) => {
   try {
-    let { firmInfo, customerInfo, invoiceMeta, items } = req.body
+    let { firmInfo, customerInfo, invoiceMeta, items, autherEmail } = req.body
     // Optional: Validate required fields
     if (!firmInfo?.firmEmail || !customerInfo?.customerEmail || !items || items.length === 0) {
       return res.status(400).send({
@@ -13,7 +13,7 @@ const storeInvoice = async (req, res) => {
     let db = await getDB()
     let collection = db.collection('invoices')
     const result = await collection.insertOne({
-      firmEmail: firmInfo.firmEmail, // Store email for linkage
+      autherEmail, // Store email for linkage
       firmInfo,
       customerInfo,
       invoiceMeta,
@@ -31,7 +31,8 @@ const storeInvoice = async (req, res) => {
     res.send({
       status: 200,
       message: "Invoice store in db successful",
-      result: result
+      result: result,
+      insertedId : result.insertedId
     })
   }
   catch (err) {
