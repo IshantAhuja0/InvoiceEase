@@ -2,7 +2,7 @@ import { InvoiceContext } from "../../Context/InvoiceContext";
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import storeInvoice from "../../utils/storeInvoice";
+import {storeInvoice} from "../../utils/storeInvoice";
 
 const InvoiceForm = () => {
   const {
@@ -252,7 +252,7 @@ const InvoiceForm = () => {
               className="w-full p-2 bg-blue-100
             rounded-md border border-blue-300 focus:outline-none focus:ring-2
             focus:ring-blue-500 transition"
-              id="paymentStatus"
+              name="paymentStatus"
               value={invoiceMeta.paymentStatus}
               onChange={handleChangeInvoiceMeta}
             >

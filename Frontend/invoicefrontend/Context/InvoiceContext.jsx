@@ -13,7 +13,7 @@ const InvoiceContextProvider = ({ children }) => {
     firmPhone: "",
   });
 
-  const [invoiceMeta, setInvoiceMeta] = useState({ invoiceNo: 1, date: "", paymentStatus: "Paid"});
+  const [invoiceMeta, setInvoiceMeta] = useState({ invoiceNo: 1, date: "", paymentStatus: ""});
 
   const [customerInfo, setCustomerInfo] = useState({
     customerName: "",

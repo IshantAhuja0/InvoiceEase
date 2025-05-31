@@ -1,14 +1,14 @@
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 
-function checkJWT() {
+async function  checkJWT() {
   const userdataRaw = localStorage.getItem('user data');
   if (!userdataRaw) return { valid: false, reason: 'No user data in storage' };
 
   try {
     const userdata = JSON.parse(userdataRaw);
     const token = userdata?.token;
-    const autherEmail = userdata?.email
+    const authorEmail = userdata?.email
     if (!token) return { valid: false, reason: 'No token found' };
 
     const decoded = jwtDecode(token);
@@ -20,7 +20,7 @@ function checkJWT() {
       return { valid: false, reason: 'Token expired' };
     }
 
-    return { valid: true, user: decoded, token, autherEmail };
+    return { valid: true, user: decoded, token, authorEmail };
   } catch (err) {
     localStorage.removeItem('user data');
     return { valid: false, reason: 'Invalid token' };
@@ -30,15 +30,15 @@ function checkJWT() {
 const storeInvoice = async (dataStoringInvoice) => {
   console.log("Storing in DB...");
   try {
-    const jwtStatus = checkJWT();
+    const jwtStatus =await  checkJWT();
     if (!jwtStatus.valid) {
       console.warn("JWT invalid:", jwtStatus.reason);
       return { status: 401, message: jwtStatus.reason };
     }
 
-    const { token, autherEmail } = jwtStatus;
-    console.log(token, autherEmail)
-    const bodyWithToken = { ...dataStoringInvoice, token, autherEmail }
+    const { token, authorEmail } = jwtStatus;
+    console.log(token, authorEmail)
+    const bodyWithToken = { ...dataStoringInvoice, token, authorEmail }
     const response = await axios.post(
       'http://localhost:5000/api/protected/storeinvoice',
       bodyWithToken,
@@ -47,7 +47,7 @@ const storeInvoice = async (dataStoringInvoice) => {
     console.log("Response status for storing invoice:", response.status);
 
     //update the owner's record to store id of invoice
-    const email = autherEmail;
+    const email = authorEmail;
     const invoiceId = response.data.insertedId;
     console.log("details for storing invoice array "+email+invoiceId)
 
@@ -61,4 +61,4 @@ const storeInvoice = async (dataStoringInvoice) => {
   }
 };
 
-export default storeInvoice;
+export  {storeInvoice,checkJWT};
