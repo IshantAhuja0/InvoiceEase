@@ -68,12 +68,12 @@ export default function Templates() {
   }
   return (
     <motion.div
-    className="min-h-screen bg-white text-blue-950 py-12 px-4 sm:px-8"
+    className="min-h-screen bg-white text-blue-900 py-12 px-4 sm:px-8"
     variants={containerVariants}
       initial="hidden"
       animate="show"
     >
-      <h1 className="text-4xl font-bold text-center mb-10 text-blue-950">
+      <h1 className="text-4xl font-bold text-center mb-10 text-blue-900">
         Choose your Invoice Template
       </h1>
 

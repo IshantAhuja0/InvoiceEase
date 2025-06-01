@@ -69,16 +69,21 @@ const Invoices = () => {
   };
 
   // Filter invoices based on search term and status
-  const filteredInvoices = invoices.filter((invoice) => {
-    const matchesSearch =
-      invoice.customerInfo?.customerFirm
-        ?.toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      invoice.invoiceMeta?.invoiceNo === searchTerm.toLowerCase();
-    const matchesStatus =
-      statusFilter === "all" || invoice.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+const filteredInvoices = invoices.filter((invoice) => {
+  const firmName = invoice.customerInfo?.customerFirm?.toLowerCase() || "";
+  const invoiceNo = invoice.invoiceMeta?.invoiceNo?.toString().toLowerCase() || "";
+  const status = invoice.status?.toLowerCase() || "";
+
+  const matchesSearch =
+    firmName.includes(searchTerm.toLowerCase()) ||
+    invoiceNo.includes(searchTerm.toLowerCase());
+
+  const matchesStatus =
+    statusFilter === "all" || status === statusFilter.toLowerCase();
+
+  return matchesSearch && matchesStatus;
+});
+
 
   // Calculate totals for stats cards
 
@@ -91,31 +96,28 @@ const Invoices = () => {
   });
   const totalAmount = totals.reduce((sum, val) => sum + val, 0);
 
-
-const paidTotals = filteredInvoices
-  .filter((invoice) => invoice.invoiceMeta.paymentStatus === "Paid")
-  .map((invoice) => {
-    let sum = 0;
-    invoice.items.forEach((item) => {
-      sum += item.price * (1 + item.tax / 100) * item.quantity;
+  const paidTotals = filteredInvoices
+    .filter((invoice) => invoice.invoiceMeta.paymentStatus === "Paid")
+    .map((invoice) => {
+      let sum = 0;
+      invoice.items.forEach((item) => {
+        sum += item.price * (1 + item.tax / 100) * item.quantity;
+      });
+      return sum;
     });
-    return sum;
-  });
 
-const pendingTotals = filteredInvoices
-  .filter((invoice) => invoice.invoiceMeta.paymentStatus === "Pending")
-  .map((invoice) => {
-    let sum = 0;
-    invoice.items.forEach((item) => {
-      sum += item.price * (1 + item.tax / 100) * item.quantity;
+  const pendingTotals = filteredInvoices
+    .filter((invoice) => invoice.invoiceMeta.paymentStatus === "Pending")
+    .map((invoice) => {
+      let sum = 0;
+      invoice.items.forEach((item) => {
+        sum += item.price * (1 + item.tax / 100) * item.quantity;
+      });
+      return sum;
     });
-    return sum;
-  });
 
-const paidAmount = paidTotals.reduce((sum, val) => sum + val, 0);
-const pendingAmount = pendingTotals.reduce((sum, val) => sum + val, 0);
-
-
+  const paidAmount = paidTotals.reduce((sum, val) => sum + val, 0);
+  const pendingAmount = pendingTotals.reduce((sum, val) => sum + val, 0);
 
   // Table headers configuration
   const tableHeaders = [
@@ -256,23 +258,23 @@ const pendingAmount = pendingTotals.reduce((sum, val) => sum + val, 0);
         {/* Filters and Search */}
         <div className="bg-white rounded-lg shadow-sm border mb-4 sm:mb-6">
           <div className="p-4 sm:p-6">
-            <div className="flex flex-col gap-4">
-              <div className="w-full">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
-                  <input
-                    type="text"
-                    placeholder="Search invoices..."
-                    className="w-full pl-8 sm:pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
+            <div className="flex w-full gap-4">
+              {/* 80% Width Search Input */}
+              <div className="relative flex-[8.7]">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
+                <input
+                  type="text"
+                  placeholder="Search invoices..."
+                  className="w-full pl-8 sm:pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              {/* 20% Width Filter Dropdown */}
+              <div className="flex-[1.3]">
                 <select
-                  className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
+                  className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >
@@ -282,11 +284,6 @@ const pendingAmount = pendingTotals.reduce((sum, val) => sum + val, 0);
                   <option value="overdue">Overdue</option>
                   <option value="draft">Draft</option>
                 </select>
-
-                <button className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base">
-                  <Filter size={14} className="sm:w-4 sm:h-4" />
-                  <span>Filter</span>
-                </button>
               </div>
             </div>
           </div>
@@ -364,7 +361,7 @@ const pendingAmount = pendingTotals.reduce((sum, val) => sum + val, 0);
                           {invoice.items
                             .reduce((sum, item) => {
                               return (
-                                sum + 
+                                sum +
                                 item.price *
                                   (1 + item.tax / 100) *
                                   item.quantity

@@ -68,8 +68,6 @@ localStorage.setItem("user data", JSON.stringify({
   }
 };
 
-
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 p-6 font-sans">
       <motion.form

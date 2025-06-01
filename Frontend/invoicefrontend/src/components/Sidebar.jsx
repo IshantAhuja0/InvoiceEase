@@ -38,11 +38,6 @@ const menuItems = [
     icon: UserPlus,
     path: "register",
   },
-  {
-    name: "Sign out",
-    icon: LogOut,
-    path: "signout",
-  },
 ];
 
 
