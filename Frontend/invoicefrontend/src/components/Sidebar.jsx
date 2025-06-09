@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Home,
   FileText,
@@ -7,38 +7,34 @@ import {
   LogOut,
   UserPlus,
 } from "lucide-react";
-
+import { AuthContext } from "../../Context/AuthContext";
 import { NavLink } from "react-router-dom";
 
 export default function Sidebar({ isOpen, sidebarRef }) {
 
-const menuItems = [
+const { user, logout } = useContext(AuthContext);
+
+const baseMenu = [
+  { name: "Home", icon: Home, path: "" },
+  { name: "Invoices", icon: FileText, path: "invoices" },
+  { name: "Templates", icon: LayoutTemplate, path: "templates" },
+];
+
+const guestMenu = [
+  { name: "Login", icon: LogIn, path: "login" },
+  { name: "Register", icon: UserPlus, path: "register" },
+];
+
+const authMenu = [
   {
-    name: "Home",
-    icon: Home,
-    path: "",
-  },
-  {
-    name: "Invoices",
-    icon: FileText,
-    path: "invoices",
-  },
-  {
-    name: "Templates",
-    icon: LayoutTemplate,
-    path: "templates",
-  },
-  {
-    name: "Login",
-    icon: LogIn,
-    path: "login",
-  },
-  {
-    name: "Register",
-    icon: UserPlus,
-    path: "register",
+    name: "Logout",
+    icon: LogOut,
+    path: "", // You can handle it with a click event instead of routing
+    onClick: logout,
   },
 ];
+
+const menuItems = user ? [...baseMenu, ...authMenu] : [...baseMenu, ...guestMenu];
 
 
   return (

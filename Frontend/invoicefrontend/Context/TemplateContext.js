@@ -1,9 +1,11 @@
 import { createContext } from "react";
 
 const TemplateContext = createContext({
-  templateName: "",
-  templateImage: "",
+  theme: {},
+  id: "",
   setTemplate: () => {},
+  isTemplateReady: false,
+  setIsTemplateReady: () => {},
 });
 
 export default TemplateContext;

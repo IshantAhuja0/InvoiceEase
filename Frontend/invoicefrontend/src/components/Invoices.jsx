@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { checkJWT } from "../../utils/storeInvoice";
 import {
   Search,
   Download,
@@ -13,35 +12,35 @@ import {
 
 // Mock data for testing if API is unavailable
 const mockInvoices = [
-  {
-    _id: "1",
-    invoiceMeta: {
-      invoiceNo: "INV-001",
-      paymentStatus: "paid",
-      date: "2025-05-01",
-    },
-    customerInfo: { customerFirm: "Acme Corp" },
-    items: [
-      { id: 1, name: "Item 1" },
-      { id: 2, name: "Item 2" },
-    ],
-    amount: 1000,
-    status: "paid",
-    createdAt: "2025-05-01",
-  },
-  {
-    _id: "2",
-    invoiceMeta: {
-      invoiceNo: "INV-002",
-      paymentStatus: "pending",
-      date: "2025-05-15",
-    },
-    customerInfo: { customerFirm: "Globex Inc" },
-    items: [{ id: 3, name: "Item 3" }],
-    amount: 500,
-    status: "pending",
-    createdAt: "2025-05-15",
-  },
+  // {
+  //   _id: "1",
+  //   invoiceMeta: {
+  //     invoiceNo: "INV-001",
+  //     paymentStatus: "paid",
+  //     date: "2025-05-01",
+  //   },
+  //   customerInfo: { customerFirm: "Acme Corp" },
+  //   items: [
+  //     { id: 1, name: "Item 1" },
+  //     { id: 2, name: "Item 2" },
+  //   ],
+  //   amount: 1000,
+  //   status: "paid",
+  //   createdAt: "2025-05-01",
+  // },
+  // {
+  //   _id: "2",
+  //   invoiceMeta: {
+  //     invoiceNo: "INV-002",
+  //     paymentStatus: "pending",
+  //     date: "2025-05-15",
+  //   },
+  //   customerInfo: { customerFirm: "Globex Inc" },
+  //   items: [{ id: 3, name: "Item 3" }],
+  //   amount: 500,
+  //   status: "pending",
+  //   createdAt: "2025-05-15",
+  // },
 ];
 
 const Invoices = () => {
@@ -69,21 +68,21 @@ const Invoices = () => {
   };
 
   // Filter invoices based on search term and status
-const filteredInvoices = invoices.filter((invoice) => {
-  const firmName = invoice.customerInfo?.customerFirm?.toLowerCase() || "";
-  const invoiceNo = invoice.invoiceMeta?.invoiceNo?.toString().toLowerCase() || "";
-  const status = invoice.status?.toLowerCase() || "";
+  const filteredInvoices = invoices.filter((invoice) => {
+    const firmName = invoice.customerInfo?.customerFirm?.toLowerCase() || "";
+    const invoiceNo =
+      invoice.invoiceMeta?.invoiceNo?.toString().toLowerCase() || "";
+    const status = invoice.status?.toLowerCase() || "";
 
-  const matchesSearch =
-    firmName.includes(searchTerm.toLowerCase()) ||
-    invoiceNo.includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      firmName.includes(searchTerm.toLowerCase()) ||
+      invoiceNo.includes(searchTerm.toLowerCase());
 
-  const matchesStatus =
-    statusFilter === "all" || status === statusFilter.toLowerCase();
+    const matchesStatus =
+      statusFilter === "all" || status === statusFilter.toLowerCase();
 
-  return matchesSearch && matchesStatus;
-});
-
+    return matchesSearch && matchesStatus;
+  });
 
   // Calculate totals for stats cards
 
@@ -94,7 +93,7 @@ const filteredInvoices = invoices.filter((invoice) => {
     });
     return sum;
   });
-  const totalAmount = totals.reduce((sum, val) => sum + val, 0);
+  const totalAmount = totals.reduce((sum, val) => sum + val, 0) || 0;
 
   const paidTotals = filteredInvoices
     .filter((invoice) => invoice.invoiceMeta.paymentStatus === "Paid")
@@ -136,21 +135,17 @@ const filteredInvoices = invoices.filter((invoice) => {
       setIsLoading(true);
       setError(null);
       try {
-        const jwtStatus = await checkJWT();
-        if (!jwtStatus.valid) {
-          console.warn("JWT invalid:", jwtStatus.reason);
-          setError("Invalid authentication. Please log in again.");
-          // Optionally use mock data for testing
-          setInvoices(mockInvoices);
-          return;
-        }
-
-        const { token, authorEmail } = jwtStatus;
+        const userdataRaw = sessionStorage.getItem("user data");
+        const userdata = JSON.parse(userdataRaw);
+        const authorEmail = userdata?.email;
         const encodedEmail = encodeURIComponent(authorEmail);
         const response = await axios.post(
           `http://localhost:5000/api/protected/getinvoicearray/${encodedEmail}`,
-          { token },
-          { timeout: 10000 } // 10-second timeout
+          {},
+          {
+            withCredentials: true,
+            timeout: 10000,
+          }
         );
 
         if (response.data && Array.isArray(response.data.invoices)) {

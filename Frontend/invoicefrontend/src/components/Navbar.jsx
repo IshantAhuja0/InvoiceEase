@@ -1,9 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { LogOut, User } from 'lucide-react';
-
+import React, { useEffect, useRef, useState } from "react";
+import { LogOut, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useContext } from "react";
+import { AuthContext } from "../../Context/AuthContext";
 export default function Navbar({ toggleSidebar }) {
+  const {user}=useContext(AuthContext)
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const[authorName,setAuthorName]=useState()
+useEffect(() => {
+  if (user) {
+    setAuthorName(user.split('@')[0]);
+  }
+}, [user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -12,14 +22,44 @@ export default function Navbar({ toggleSidebar }) {
         setDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }
 
+  , []);
+
+  const navigate=useNavigate()
+  const handleLogout = async () => {
+    try {
+      const userdataRaw = sessionStorage.getItem("user data");
+      if (userdataRaw) {
+        const deleteFromLocalStorage = sessionStorage.removeItem(userdataRaw);
+        console.log(
+          "deleted email from local storage : " + deleteFromLocalStorage
+        );
+      }
+      const result = await axios.post(
+        "http://localhost:5000/api/protected/logout",
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      if (result.status === 200) {
+        console.log(result.data.message);
+        setDropdownOpen(false);
+        navigate("/")
+      }
+      else{
+        console.log("problem while logging out user")
+      }
+    } catch (error) {
+      console.log("failed to logout : " + error.message);
+    }
+  };
   return (
     <header className="w-full border-b border-gray-200 text-white shadow-sm fixed top-0 left-0 z-50 bg-blue-950">
       <div className="flex h-16 items-center justify-between px-2 sm:px-6 lg:px-8">
-
         {/* Sidebar Toggle + Brand */}
         <div className="flex items-center">
           <div className="block md:hidden pr-2">
@@ -45,16 +85,23 @@ export default function Navbar({ toggleSidebar }) {
               src="https://i.postimg.cc/xdWwQqtR/Invoice-Ease.png"
               alt="Logo"
             />
-            <span className="text-2xl font-semibold text-white">InvoiceEase</span>
+            <span className="text-2xl font-semibold text-white">
+              InvoiceEase
+            </span>
           </div>
         </div>
 
         {/* User Info + Dropdown */}
         <div className="relative" ref={dropdownRef}>
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setDropdownOpen(!dropdownOpen)}>
+          <div
+            className="flex items-center gap-3 cursor-pointer"
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
             <div className="hidden md:block text-right">
-              <p className="text-sm font-medium">invoiceEase_user</p>
-              <p className="text-xs text-gray-300">invoiceEase_user@gamail.com</p>
+              <p className="text-sm font-medium">{authorName}</p>
+              <p className="text-xs text-gray-300">
+                {user||"invoiceEase_user@gmail.com"}
+              </p>
             </div>
             <img
               src="https://www.pngkey.com/png/detail/121-1219231_user-default-profile.png"
@@ -78,10 +125,7 @@ export default function Navbar({ toggleSidebar }) {
               </button>
               <button
                 className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-red-600"
-                onClick={() => {
-                  setDropdownOpen(false);
-                  alert("Logging out...");
-                }}
+                onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4" />
                 Logout
@@ -89,7 +133,6 @@ export default function Navbar({ toggleSidebar }) {
             </div>
           )}
         </div>
-
       </div>
     </header>
   );

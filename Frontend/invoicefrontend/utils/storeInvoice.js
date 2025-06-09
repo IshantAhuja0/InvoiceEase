@@ -1,64 +1,56 @@
-import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
-
-async function  checkJWT() {
-  const userdataRaw = localStorage.getItem('user data');
-  if (!userdataRaw) return { valid: false, reason: 'No user data in storage' };
-
-  try {
-    const userdata = JSON.parse(userdataRaw);
-    const token = userdata?.token;
-    const authorEmail = userdata?.email
-    if (!token) return { valid: false, reason: 'No token found' };
-
-    const decoded = jwtDecode(token);
-
-    // Check if expired
-    const currentTime = Math.floor(Date.now() / 1000); // current time in seconds
-    if (decoded.exp < currentTime) {
-      localStorage.removeItem('user data');
-      return { valid: false, reason: 'Token expired' };
-    }
-
-    return { valid: true, user: decoded, token, authorEmail };
-  } catch (err) {
-    localStorage.removeItem('user data');
-    return { valid: false, reason: 'Invalid token' };
-  }
-}
 
 const storeInvoice = async (dataStoringInvoice) => {
   console.log("Storing in DB...");
-  try {
-    const jwtStatus =await  checkJWT();
-    if (!jwtStatus.valid) {
-      console.warn("JWT invalid:", jwtStatus.reason);
-      return { status: 401, message: jwtStatus.reason };
-    }
 
-    const { token, authorEmail } = jwtStatus;
-    console.log(token, authorEmail)
-    const bodyWithToken = { ...dataStoringInvoice, token, authorEmail }
+  try {
+    const userdataRaw = sessionStorage.getItem("user data");
+    const userdata = JSON.parse(userdataRaw);
+    const authorEmail = userdata?.email;
+
+    if (!authorEmail) {
+      throw new Error("Author email missing from localStorage");
+    }
+    // Send invoice data to server
+    const bodyWithEmail = { ...dataStoringInvoice, authorEmail };
+    console.log(bodyWithEmail)
     const response = await axios.post(
       'http://localhost:5000/api/protected/storeinvoice',
-      bodyWithToken,
+      bodyWithEmail,
+      {
+        withCredentials: true, // ✅ required for sending cookie
+        timeout: 10000
+      }
     );
 
-    console.log("Response status for storing invoice:", response.status);
+    console.log("Invoice stored, status:", response.status);
 
-    //update the owner's record to store id of invoice
-    const email = authorEmail;
+    // Update owner's invoice list
     const invoiceId = response.data.insertedId;
-    console.log("details for storing invoice array "+email+invoiceId)
+    console.log("Updating invoice array for:", authorEmail, invoiceId);
 
-    const encodedEmail = encodeURIComponent(email);
-    const updateOwnerRecord = await axios.patch(`http://localhost:5000/api/protected/updateinvoicearray/${encodedEmail}`, { invoiceId, token })
-    if (!updateOwnerRecord) return { status: 500, message: "Failed to update invoices array while adding in owner's record" };
-    return { status: 200, message: "Invoice stored successfully" };
+    const encodedEmail = encodeURIComponent(authorEmail);
+
+    const updateOwnerRecord = await axios.patch(
+      `http://localhost:5000/api/protected/updateinvoicearray/${encodedEmail}`,
+      { invoiceId },
+      {
+        withCredentials: true, // ✅ include cookie in PATCH too
+        timeout: 5000
+      }
+    );
+
+    console.log("Invoice array updated, status:", updateOwnerRecord.status);
+
+    return {
+      status: 200,
+      message: "Invoice stored and owner record updated successfully",
+    };
+
   } catch (error) {
-    console.log("Axios error:", error);
-    return error.response || { status: 500, message: "Unexpected error" };
+    console.error("❌ Error in storing invoice or updating array:", error.message);
+    return error.response || { status: 500, message: "Unexpected error occurred" };
   }
 };
 
-export  {storeInvoice,checkJWT};
+export { storeInvoice };

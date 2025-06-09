@@ -2,7 +2,7 @@ import { InvoiceContext } from "../../Context/InvoiceContext";
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {storeInvoice} from "../../utils/storeInvoice";
+import { storeInvoice } from "../../utils/storeInvoice";
 
 const InvoiceForm = () => {
   const {
@@ -26,12 +26,22 @@ const InvoiceForm = () => {
   };
 
   const addItem = () => {
-    setItems([...items, { description: "", quantity: 1, price: 0, tax: 0 }]);
+    setItems([
+      ...items,
+      { description: "", quantity: 1, price: 0, tax: 0, line_total: 0 },
+    ]);
   };
 
   const handleChange = (index, field, value) => {
     const updatedItems = [...items];
     updatedItems[index][field] = value;
+
+    // Recalculate line_total
+    const { quantity, price, tax } = updatedItems[index];
+    const subtotal = quantity * price;
+    const taxAmount = (subtotal * tax) / 100;
+    updatedItems[index].line_total = subtotal + taxAmount;
+
     setItems(updatedItems);
   };
 
@@ -68,7 +78,7 @@ const InvoiceForm = () => {
       return;
     }
     //store invoice in db if user is logged in
-    const userdata = localStorage.getItem("user data");
+    const userdata = sessionStorage.getItem("user data");
     if (userdata) {
       const dataStoringInvoice = {
         firmInfo,
@@ -77,11 +87,12 @@ const InvoiceForm = () => {
         items,
       };
       const result = await storeInvoice(dataStoringInvoice);
-      // if(result.status!=200){
-      //   throw new Error("problem occured while storing invoice in db")
-      // }
+      if(result.status!=200){
+        throw new Error("problem occured while storing invoice in db")
+      }
       console.log("invoice stored in db successfully");
     }
+    console.log(items)
     navigate("/bill");
   };
   return (
@@ -272,10 +283,11 @@ const InvoiceForm = () => {
           </p>
 
           <div className="hidden md:grid grid-cols-5 gap-4 text-sm text-gray-600 px-4 pb-2">
-            <span className="col-span-2">Description</span>
+            <span>Description</span>
             <span>Quantity</span>
             <span>Unit Price (₹)</span>
             <span>Tax (%)</span>
+            <span>Line Total (₹)</span>
           </div>
 
           <div className="space-y-6">
@@ -325,30 +337,44 @@ const InvoiceForm = () => {
                     placeholder: "%",
                     type: "number",
                   },
-                ].map(({ name, label, placeholder, type, required }) => (
-                  <div className="flex flex-col" key={name}>
-                    <label className="text-sm text-gray-600 font-medium mb-1">
-                      {label}
-                    </label>
-                    <input
-                      className="p-2 rounded-md bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                      placeholder={placeholder}
-                      type={type}
-                      min={type === "number" ? 0 : undefined}
-                      value={item[name]}
-                      onChange={(e) =>
-                        handleChange(
-                          index,
-                          name,
-                          type === "number"
-                            ? Number(e.target.value)
-                            : e.target.value
-                        )
-                      }
-                      required={required}
-                    />
-                  </div>
-                ))}
+                  {
+                    name: "line_total",
+                    label: "Line Total",
+                    placeholder: "₹",
+                    type: "text",
+                    readonly: true,
+                  },
+                ].map(
+                  ({ name, label, placeholder, type, required, readonly }) => (
+                    <div className="flex flex-col" key={name}>
+                      <label className="text-sm text-gray-600 font-medium mb-1">
+                        {label}
+                      </label>
+                      <input
+                        className={`p-2 rounded-md border ${
+                          readonly
+                            ? "bg-gray-100 cursor-not-allowed"
+                            : "bg-white"
+                        } border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition`}
+                        placeholder={placeholder}
+                        type={type}
+                        min={type === "number" ? 0 : undefined}
+                        value={item[name]}
+                        readOnly={readonly}
+                        onChange={(e) =>
+                          handleChange(
+                            index,
+                            name,
+                            type === "number"
+                              ? Number(e.target.value)
+                              : e.target.value
+                          )
+                        }
+                        required={required}
+                      />
+                    </div>
+                  )
+                )}
               </motion.div>
             ))}
           </div>

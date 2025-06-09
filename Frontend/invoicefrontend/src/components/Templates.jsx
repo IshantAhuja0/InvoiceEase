@@ -1,117 +1,117 @@
-import React from "react";
-import { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import TemplateContext from "../../Context/TemplateContext";
-import { motion } from "framer-motion";
+import { invoiceThemes } from "../../Invoice Templates/invoiceThemes";
 import { IoMdAddCircle } from "react-icons/io";
-
-
-const templates = [
-  {
-    id: 1,
-    name: "Classic Blue",
-    src: "https://cdn4.geckoandfly.com/wp-content/uploads/2019/06/sales-services-invoice-18.jpg",
-  },
-  {
-    id: 2,
-    name: "Graphical Green",
-    src: "https://www.invoiceberry.com/img/homepage/free_invoice_templates/new/countries/US.png",
-  },
-  {
-    id: 3,
-    name: "Bold",
-    src: "https://th.bing.com/th/id/OIP.3WDtx3MVl_EUpzPF-DVEywHaKY?cb=iwc2&rs=1&pid=ImgDetMain",
-  },
-  {
-    id: 4,
-    name: "Clean and Bold",
-    src: "https://images.template.net/943/Blank-Commercial-Invoice-Template.jpg",
-  },
-  {
-    id: 5,
-    name: "Modern Blue",
-    src: "https://cdn.geckoandfly.com/wp-content/uploads/2019/06/sales-services-invoice-20.jpg",
-  },
-  {
-    id: 6,
-    name: "Minimal Gray",
-    src: "https://assets-global.website-files.com/6253f6e60f27498e7d4a1e46/6271a4637b3b5d737a3b5865_Professional-Invoice-Template-1-P.jpeg",
-  },
-];
-
-// Framer motion variants
-const cardVariants = {
-  hidden: { opacity: 0, y: 30 },
-  show: { opacity: 1, y: 0 },
-};
 
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.2,
+      staggerChildren: 0.15,
     },
   },
 };
 
-export default function Templates() {
-  let navigate = useNavigate();
-  const {  setTemplate } = useContext(TemplateContext);
-  
-  function navigateFrom(template) {
-    let templateName =template.name;
-    let templateImage = template.src;
-    setTemplate({ templateName, templateImage });
-    console.log(templateName, templateImage);
-    navigate("/invoiceform");
-  }
+const cardVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut",
+    },
+  },
+};
+
+const hoverVariants = {
+  hover: {
+    scale: 1.03,
+    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.15)",
+    transition: {
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  },
+};
+
+const Templates = () => {
+  const navigate = useNavigate();
+  const { setTemplate, isTemplateReady, setIsTemplateReady } = useContext(TemplateContext);
+
+  const handleSelect = (key) => {
+    const selected = invoiceThemes[key];
+    if (!selected) return;
+
+    setTemplate({
+      theme: selected.theme,
+      id: key,
+    });
+  };
+
+  useEffect(() => {
+    if (isTemplateReady) {
+      navigate("/invoiceform");
+      setIsTemplateReady(false);
+    }
+  }, [isTemplateReady, navigate, setIsTemplateReady]);
+
   return (
-    <motion.div
-    className="min-h-screen bg-white text-blue-900 py-12 px-4 sm:px-8"
-    variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      <h1 className="text-4xl font-bold text-center mb-10 text-blue-900">
-        Choose your Invoice Template
-      </h1>
-
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        {templates.map((template) => (
-          <motion.div
-            key={template.id}
-            className="bg-gray-200 rounded-2xl overflow-hidden shadow-lg cursor-pointer flex flex-col"
-            variants={cardVariants}
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 100 }}
-            >
-            {/* Zoom-on-hover image */}
-            <div className="overflow-hidden rounded-t-2xl">
-              <motion.img
-                src={template.src}
-                alt={template.name}
-                className="w-full h-52 object-cover"
-                whileHover={{ scale: 1.22 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
-                />
-            </div>
-
-            {/* Card footer */}
-            <div className="p-2 flex flex-col justify-between h-30"
-            >
-              <h2 className="text-lg font-semibold m-2">{template.name}</h2>
-              <button
-                onClick={() => navigateFrom(template)}
-                className="bg-blue-950 text-white px-4 py-2 rounded-md hover:bg-blue-900 transition mt-auto flex items-center gap-1 justify-center"
+    <div className="min-h-screen bg-gray-50 text-gray-900 py-12 px-6">
+      <div className="max-w-7xl mx-auto">
+        <motion.h1
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-4xl font-bold text-center text-blue-900 mb-10"
+        >
+          Select Your Invoice Template
+        </motion.h1>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          <AnimatePresence>
+            {Object.keys(invoiceThemes).map((key, index) => {
+              const { name, src } = invoiceThemes[key];
+              return (
+                <motion.div
+                  key={key}
+                  variants={cardVariants}
+                  whileHover="hover"
+                  className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer border border-gray-100"
+                  onClick={() => handleSelect(key)}
                 >
-                Create Invoice
-                <IoMdAddCircle className="font-extrabold" />
-              </button>
-            </div>
-          </motion.div>
-        ))}
+                  <motion.div variants={hoverVariants}>
+                    <img
+                      src={src}
+                      alt={`${name} Preview`}
+                      className="w-full h-48 object-cover transition-transform duration-300"
+                    />
+                    <div className="p-6">
+                      <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-semibold text-gray-800">{name}</h2>
+                        <IoMdAddCircle className="text-blue-900 text-2xl opacity-80 hover:opacity-100 transition-opacity duration-200" />
+                      </div>
+                      <p className="mt-2 text-sm text-gray-500">
+                        Professional and clean design for {name.toLowerCase()} invoices
+                      </p>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
-}
+};
+
+export default Templates;

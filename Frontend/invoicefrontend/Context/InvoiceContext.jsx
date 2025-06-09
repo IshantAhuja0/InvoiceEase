@@ -2,7 +2,7 @@ import React, { createContext, useMemo, useState } from "react";
 const InvoiceContext = createContext();
 const InvoiceContextProvider = ({ children }) => {
   const [items, setItems] = useState([
-    { description: "", quantity: 1, price: 0, tax: 0 },
+    { description: "", quantity: 1, price: 0, tax: 0, line_total:0 },
   ]);
 
   const [firmInfo, setFirmInfo] = useState({

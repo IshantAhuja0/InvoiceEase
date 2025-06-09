@@ -3,7 +3,8 @@ import mongodb from "mongodb";
 const ObjectId = mongodb.ObjectId;
 const storeInvoice = async (req, res) => {
   try {
-    let { firmInfo, customerInfo, invoiceMeta, items, autherEmail } = req.body
+    let { firmInfo, customerInfo, invoiceMeta, items, authorEmail } = req.body
+    console.log(authorEmail)
     // Optional: Validate required fields
     if (!firmInfo?.firmEmail || !customerInfo?.customerEmail || !items || items.length === 0) {
       return res.status(400).send({
@@ -14,8 +15,9 @@ const storeInvoice = async (req, res) => {
 
     let db = await getDB()
     let collection = db.collection('invoices')
+
     const result = await collection.insertOne({
-      autherEmail, // Store email for linkage
+      authorEmail, // Store email for linkage
       firmInfo,
       customerInfo,
       invoiceMeta,
@@ -34,7 +36,7 @@ const storeInvoice = async (req, res) => {
       status: 200,
       message: "Invoice store in db successful",
       result: result,
-      insertedId : result.insertedId
+      insertedId: result.insertedId
     })
   }
   catch (err) {
@@ -48,22 +50,43 @@ const storeInvoice = async (req, res) => {
 }
 const updateInvoiceArray = async (req, res) => {
   try {
-    const email = req.params.email
-    const { invoiceId } = req.body
+    const email = req.params.email; // ✅ or req.body.email if needed
+    const { invoiceId } = req.body;
+
     if (!email || !invoiceId) {
-      return res.status(401).json({ status: 401, message: "userId or invoiceId not provided. Invalid credentials" })
+      return res.status(401).json({
+        status: 401,
+        message: "Email or invoiceId not provided. Invalid credentials",
+      });
     }
-    const db = await getDB()
-    const collection =await  db.collection('register_users')
+
+    const db = await getDB();
+    const collection = db.collection("register_users");
+
     const result = await collection.updateOne(
       { email: email },
-      { $push: { invoices: invoiceId } }
-    )
-    return res.status(200).json({status:200,message:"Invoices array updated successfully"})
+      { $addToSet: { invoices: invoiceId } } // prevent duplicates
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        status: 404,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: 200,
+      message: "Invoices array updated successfully",
+    });
   } catch (error) {
-return res.status(500).json({status:500,message:"Internal server error while updating invoices array"})
+    console.error("Error updating invoice:", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Internal server error while updating invoices array",
+    });
   }
-}
+};
 
 const getInvoiceArray = async (req, res) => {
   try {
@@ -104,4 +127,4 @@ const objectIdToInvoices = async (ids) => {
     console.log("conversion from ids to invoices failed in objectIdToInvoices function")
   }
 }
-export { getInvoiceArray,storeInvoice,updateInvoiceArray}
+export { getInvoiceArray, storeInvoice, updateInvoiceArray }
