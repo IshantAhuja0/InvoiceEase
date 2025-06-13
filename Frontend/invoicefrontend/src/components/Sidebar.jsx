@@ -9,34 +9,65 @@ import {
 } from "lucide-react";
 import { AuthContext } from "../../Context/AuthContext";
 import { NavLink } from "react-router-dom";
-
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 export default function Sidebar({ isOpen, sidebarRef }) {
+  const { user, logout } = useContext(AuthContext);
+  const IconLogout = LogOut;
 
-const { user, logout } = useContext(AuthContext);
+  const baseMenu = [
+    { name: "Home", icon: Home, path: "" },
+    { name: "Invoices", icon: FileText, path: "invoices" },
+    { name: "Templates", icon: LayoutTemplate, path: "templates" },
+  ];
 
-const baseMenu = [
-  { name: "Home", icon: Home, path: "" },
-  { name: "Invoices", icon: FileText, path: "invoices" },
-  { name: "Templates", icon: LayoutTemplate, path: "templates" },
-];
+  const guestMenu = [
+    { name: "Login", icon: LogIn, path: "login" },
+    { name: "Register", icon: UserPlus, path: "register" },
+  ];
 
-const guestMenu = [
-  { name: "Login", icon: LogIn, path: "login" },
-  { name: "Register", icon: UserPlus, path: "register" },
-];
+  // const authMenu = [
+  //   {
+  //     name: "Logout",
+  //     icon: LogOut,
+  //     path: "", // You can handle it with a click event instead of routing
+  //     onClick: logout,
+  //   },
+  // ];
+  const menuItems = user
+    ? [...baseMenu]
+    : [...baseMenu, ...guestMenu];
 
-const authMenu = [
-  {
-    name: "Logout",
-    icon: LogOut,
-    path: "", // You can handle it with a click event instead of routing
-    onClick: logout,
-  },
-];
-
-const menuItems = user ? [...baseMenu, ...authMenu] : [...baseMenu, ...guestMenu];
-
-
+    const navigate=useNavigate()
+  const handleLogout = async () => {
+    try {
+      const userdataRaw = sessionStorage.getItem("user data");
+      if (userdataRaw) {
+        const deleteFromLocalStorage = sessionStorage.removeItem("user data");
+        console.log(
+          "deleted email from local storage : " + deleteFromLocalStorage
+        );
+      }
+      const result = await axios.post(
+        "http://localhost:5000/api/protected/logout",
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      console.log("logging out")
+      logout()
+      if (result.status === 200) {
+        console.log(result.data.message);
+        navigate("/")
+      }
+      else{
+        console.log("problem while logging out user")
+      }
+    } catch (error) {
+      console.log("failed to logout : " + error.message);
+    }
+  };
   return (
     <aside
       ref={sidebarRef}
@@ -46,29 +77,36 @@ const menuItems = user ? [...baseMenu, ...authMenu] : [...baseMenu, ...guestMenu
       aria-label="Sidebar"
     >
       <div className="h-full px-4 py-6 overflow-y-auto">
-<ul className="space-y-2">
-  {menuItems.map((item) => {
-    const Icon = item.icon;
-    return (
-      <li key={item.name}>
-        <NavLink
-          to={`/${item.path}`}
-          className={({ isActive }) =>
-            `flex items-center gap-3 p-2 rounded-lg transition-colors duration-300 ${
-              isActive
-                ? "bg-white text-blue-900 font-semibold"
-                : "text-white hover:bg-white/10"
-            }`
-          }
-        >
-          <Icon className="w-5 h-5 shrink-0" />
-          <span className="truncate">{item.name}</span>
-        </NavLink>
-      </li>
-    );
-  })}
-</ul>
-
+        <ul className="space-y-2">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <li key={item.name}>
+                <NavLink
+                  to={`/${item.path}`}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 p-2 rounded-lg transition-colors duration-300 ${
+                      isActive
+                        ? "bg-white text-blue-900 font-semibold"
+                        : "text-white hover:bg-white/10"
+                    }`
+                  }
+                >
+                  <Icon className="w-5 h-5 shrink-0" />
+                  <span className="truncate">{item.name}</span>
+                </NavLink>
+              </li>
+            );
+          })}
+          {user && (
+            <li onClick={handleLogout}>
+              <div className="flex items-center gap-3 p-2 rounded-lg transition-colors duration-300 text-white hover:bg-white/10">
+                <IconLogout className="w-5 h-5 shrink-0" />
+                <span className="truncate">Logout</span>
+              </div>
+            </li>
+          )}
+        </ul>
       </div>
     </aside>
   );

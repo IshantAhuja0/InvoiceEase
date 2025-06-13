@@ -11,6 +11,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Invoices from "./components/Invoices";
 import AuthRequired from "../Auth/AuthRequired";
+import Form from "../form";
 
 function App() {
   return (
@@ -28,7 +29,7 @@ function App() {
         </Route>
         {/* Define other routes that don't use the layout outside the Layout Route */}
       </Routes>
-    </BrowserRouter>
+    </BrowserRouter>  
   );
 }
 

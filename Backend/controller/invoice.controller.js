@@ -1,4 +1,4 @@
-import { getDB } from "../Mongo/mongo.js"
+import { connectDB, getDB } from "../Mongo/mongo.js"
 import mongodb from "mongodb";
 const ObjectId = mongodb.ObjectId;
 const storeInvoice = async (req, res) => {
@@ -87,7 +87,6 @@ const updateInvoiceArray = async (req, res) => {
     });
   }
 };
-
 const getInvoiceArray = async (req, res) => {
   try {
     const email = req.params.email
@@ -127,4 +126,54 @@ const objectIdToInvoices = async (ids) => {
     console.log("conversion from ids to invoices failed in objectIdToInvoices function")
   }
 }
-export { getInvoiceArray, storeInvoice, updateInvoiceArray }
+const getInvoice = async (req, res) => {
+  try {
+    const invoiceId = req.params.id
+    if (!invoiceId) return res.status(401).json({ status: 401, message: "invoice id is required to fetch invoice" })
+    const db = await getDB()
+    const collection = db.collection("invoices")
+    const result = await collection.findOne({ _id: invoiceId })
+    if (!result) return res.status(404).json({ status: 404, message: "failed to fetch invoice . invalid invoice id" })
+    return res.status(200).json({ status: 200, message: "invoice fetched successfully", data: result })
+  } catch (error) {
+    return res.status(500).json({ status: 500, message: "failed to fetch invoice . Internal server error" })
+  }
+}
+
+const deleteInvoice = async (req, res) => {
+  try {
+    const { authorEmail } = req.body;
+    const invoiceId = req.params.id;
+
+    if (!invoiceId) return res.status(401).json({ status: 401, message: "invoice id is required to delete invoice" });
+    if (!authorEmail) return res.status(401).json({ status: 401, message: "author email is required to delete invoice" });
+
+    const db = await getDB();
+    const collection = db.collection("invoices");
+
+    // Delete invoice document
+    const result = await collection.deleteOne({ _id: new ObjectId(invoiceId) });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ status: 404, message: "failed to delete invoice. invalid invoice id" });
+    }
+
+    // Remove from user's invoice array
+    const authorCollection = db.collection("register_users");
+    const removeFromUser = await authorCollection.updateOne(
+      { email: authorEmail },
+      { $pull: { invoices: invoiceId } }
+    );
+
+    if (removeFromUser.modifiedCount === 0) {
+      return res.status(404).json({ status: 404, message: "failed to delete invoiceId from user's invoice array" });
+    }
+
+    return res.status(200).json({ status: 200, message: "invoice deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: 500, message: "failed to delete invoice. Internal server error" });
+  }
+};
+
+
+export { getInvoiceArray, storeInvoice, updateInvoiceArray, getInvoice, deleteInvoice }

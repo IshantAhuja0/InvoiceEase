@@ -5,14 +5,12 @@ import axios from "axios";
 import { useContext } from "react";
 import { AuthContext } from "../../Context/AuthContext";
 export default function Navbar({ toggleSidebar }) {
-  const {user}=useContext(AuthContext)
+  const {user,logout}=useContext(AuthContext)
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const[authorName,setAuthorName]=useState()
+  const[authorName,setAuthorName]=useState("InvoiceEase User")
 useEffect(() => {
-  if (user) {
-    setAuthorName(user.split('@')[0]);
-  }
+  user?setAuthorName(user.split('@')[0]):setAuthorName("InvoiceEase User");
 }, [user]);
 
   // Close dropdown when clicking outside
@@ -33,7 +31,7 @@ useEffect(() => {
     try {
       const userdataRaw = sessionStorage.getItem("user data");
       if (userdataRaw) {
-        const deleteFromLocalStorage = sessionStorage.removeItem(userdataRaw);
+        const deleteFromLocalStorage = sessionStorage.removeItem("user data");
         console.log(
           "deleted email from local storage : " + deleteFromLocalStorage
         );
@@ -45,6 +43,8 @@ useEffect(() => {
           withCredentials: true,
         }
       );
+      console.log("logging out")
+      logout()
       if (result.status === 200) {
         console.log(result.data.message);
         setDropdownOpen(false);
@@ -111,7 +111,7 @@ useEffect(() => {
           </div>
 
           {/* Dropdown Menu */}
-          {dropdownOpen && (
+          {user && dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 text-sm text-gray-800 z-50">
               <button
                 className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition"
