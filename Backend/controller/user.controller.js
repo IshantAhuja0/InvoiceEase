@@ -53,7 +53,7 @@ const login = async (req, res) => {
   }
 };
 
-const checkAlreadyLoginForRegister=async({ email })=>{
+const checkAlreadyLoginForRegister = async ({ email }) => {
   try {
     let db = await getDB();
     let collection = db.collection('register_users');
@@ -123,7 +123,7 @@ const registerUser = async (req, res) => {
       //through these our cookies are only modifiable through backend and can only be accessed not modified in frontend
       httpOnly: true,
       secure: true,
-        sameSite: 'Lax', 
+      sameSite: 'Lax',
     }
     return res.status(201)
       .cookie("accessToken", token, options)
@@ -142,25 +142,64 @@ const registerUser = async (req, res) => {
   }
 };
 
-const logoutUser=async (req,res)=>{
-try {
-  const user=req.user
-  const email=user?.email
-  if(!email) {
-    return res.status(401).json({status:401,message:"user is not logged in"})
+const logoutUser = async (req, res) => {
+  try {
+    const user = req.user
+    const email = user?.email
+    if (!email) {
+      return res.status(401).json({ status: 401, message: "user is not logged in" })
+    }
+    const options = {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Lax'
+    }
+    return res.status(200)
+      .clearCookie("accessToken", options)
+      .json({ status: 200, message: "User logged out" })
+
+  } catch (error) {
+    return res.status(500).json({ status: 500, message: "Internal server error.failed to logout user" })
+
   }
-  const options = {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'Lax' 
+}
+const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    // Validate input
+    if (!email || !newPassword) {
+      return res.status(400).json({
+        status: 400,
+        message: "Email and new password are required to change the password.",
+      });
+    }
+    const db = await getDB();
+    const collection = db.collection("register_users");
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    console.log(email,newPassword)
+    const result = await collection.updateOne(
+      { email },
+      { $set: { password: hashedPassword } },
+    );
+    console.log("result : "+result)
+    if (result.matchedCount === 0) {
+      return res.status(401).json({
+        status: 401,
+        message: "Provided email is not registered. Please check or register first.",
+      });
+    }
+    return res.status(200).json({
+      status: 200,
+      message: "Password updated successfully.",
+    });
+
+  } catch (error) {
+    console.error("Error in resetPassword:", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Internal server error while updating password.",
+    });
   }
-  return res.status(200)
-  .clearCookie("accessToken", options)
-  .json({status:200,message: "User logged out"})
-  
-} catch (error) {
-  return res.status(500).json({status:500,message:"Internal server error.failed to logout user"})
-  
-}
-}
-export {login,checkAlreadyLoginForRegister,registerUser,logoutUser};
+};
+
+export { login, checkAlreadyLoginForRegister, registerUser, logoutUser, resetPassword };

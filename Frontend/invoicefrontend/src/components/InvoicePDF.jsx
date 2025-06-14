@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import InvoiceTemplate from "../../Invoice Templates/InvoiceTemplate";
@@ -7,6 +8,9 @@ import { invoiceThemes } from "../../Invoice Templates/invoiceThemes";
 import styled from "styled-components";
 
 const InvoicePDF = () => {
+  const location=useLocation()
+  const useLocal=location.state?.useLocal || false
+
   const componentRef = useRef();
   const [selectedTheme, setSelectedTheme] = useState(invoiceThemes[0]);
 
@@ -80,7 +84,7 @@ const InvoicePDF = () => {
       </ThemeSelector>
 
       <InvoiceContainer ref={componentRef}>
-        <InvoiceTemplate theme={selectedTheme} />
+        <InvoiceTemplate theme={selectedTheme} local={useLocal}/>
       </InvoiceContainer>
 
       <ButtonContainer>

@@ -98,12 +98,12 @@ const getInvoiceArray = async (req, res) => {
     const result = await collection.findOne({ email: email })
     if (!result) return res.status(401).json({ status: 401, message: "failed to fetch invoice array ,provided email is not correct or not registered in db." })
     if (!result.invoices) {
-      res.status(200).json({ status: 200, message: "no stored invoice to return.", invoices: [] })
+      return res.status(200).json({ status: 200, message: "no stored invoice to return.", invoices: [] })
     }
     //function to convert ids to get full invoice records
     const ids = result.invoices
     const invoices = await objectIdToInvoices(ids)
-    res.status(200).json({ status: 200, message: "successfully fetched all invoices of user", invoices: invoices })
+    return res.status(200).json({ status: 200, message: "successfully fetched all invoices of user", invoices: invoices })
 
   } catch (error) {
     return res.status(500).json({ status: 500, message: "Internal server error. failed to fetch invoice array ." })
@@ -116,14 +116,16 @@ const objectIdToInvoices = async (ids) => {
     const collection = db.collection("invoices")
     //this just converts id of string to actual datatype of id and now we have objectIds that can direclty be searched in db.
     const objectIds = ids.map((id) => new ObjectId(id));
-
+    console.log("1")
     //  Perform a single query with `$in` (1 DB call)
     //objectIds is a array that contains actual object id that can be searched as it is.
     const results = await collection.find({ _id: { $in: objectIds } }).toArray();
+    console.log("2")
 
     return results
   } catch (error) {
     console.log("conversion from ids to invoices failed in objectIdToInvoices function")
+    return res.status(500).json({ status: 500, message: "internal server error occured while converting object ids to invoices" })
   }
 }
 const getInvoice = async (req, res) => {
@@ -139,7 +141,7 @@ const getInvoice = async (req, res) => {
     return res.status(500).json({ status: 500, message: "failed to fetch invoice . Internal server error" })
   }
 }
-
+  
 const deleteInvoice = async (req, res) => {
   try {
     const { authorEmail } = req.body;

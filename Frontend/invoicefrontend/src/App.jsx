@@ -11,7 +11,6 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Invoices from "./components/Invoices";
 import AuthRequired from "../Auth/AuthRequired";
-import Form from "../form";
 
 function App() {
   return (

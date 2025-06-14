@@ -61,7 +61,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2740%27 height=%2740%27 viewBox=%270 0 40 40%27%3E%3Crect x=%270%27 y=%270%27 width=%2740%27 height=%2740%27 fill=%27%23f3f4f6%27/%3E%3Cpath d=%27M0 0h40v1H0zM0 39h40v1H0zM0 0v40h1V0zM39 0v40h1V0z%27 fill=%27%23e5e7eb%27/%3E%3C/svg%3E%27)] bg-repeat">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-gray-100 bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2740%27 height=%2740%27 viewBox=%270 0 40 40%27%3E%3Crect x=%270%27 y=%270%27 width=%2740%27 height=%2740%27 fill=%27%23f3f4f6%27/%3E%3Cpath d=%27M0 0h40v1H0zM0 39h40v1H0zM0 0v40h1V0zM39 0v40h1V0z%27 fill=%27%23e5e7eb%27/%3E%3C/svg%3E%27)] bg-repeat">
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
         <motion.div

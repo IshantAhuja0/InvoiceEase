@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, Eye, Plus, DollarSign, FileText, Trash } from "lucide-react";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 // Mock data for testing if API is unavailable
 const mockInvoices = [
   {
     _id: "1",
-    invoiceMeta: { invoiceNo: "INV-001", paymentStatus: "paid", date: "2025-05-01" },
+    invoiceMeta: {
+      invoiceNo: "INV-001",
+      paymentStatus: "paid",
+      date: "2025-05-01",
+    },
     customerInfo: { customerFirm: "Acme Corp" },
     items: [{ id: 1, name: "Item 1", price: 500, tax: 10, quantity: 2 }],
     amount: 1000,
@@ -15,7 +19,11 @@ const mockInvoices = [
   },
   {
     _id: "2",
-    invoiceMeta: { invoiceNo: "INV-002", paymentStatus: "pending", date: "2025-05-15" },
+    invoiceMeta: {
+      invoiceNo: "INV-002",
+      paymentStatus: "pending",
+      date: "2025-05-15",
+    },
     customerInfo: { customerFirm: "Globex Inc" },
     items: [{ id: 3, name: "Item 3", price: 500, tax: 0, quantity: 1 }],
     amount: 500,
@@ -30,7 +38,8 @@ const Invoices = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [invoices, setInvoices] = useState([]);
   const [error, setError] = useState(null);
-
+  const navigate = useNavigate();
+  
   // Function to determine status color
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -50,10 +59,14 @@ const Invoices = () => {
   // Filter invoices based on search term and status
   const filteredInvoices = invoices.filter((invoice) => {
     const firmName = invoice.customerInfo?.customerFirm?.toLowerCase() || "";
-    const invoiceNo = invoice.invoiceMeta?.invoiceNo?.toString().toLowerCase() || "";
+    const invoiceNo =
+      invoice.invoiceMeta?.invoiceNo?.toString().toLowerCase() || "";
     const status = invoice.status?.toLowerCase() || "";
-    const matchesSearch = firmName.includes(searchTerm.toLowerCase()) || invoiceNo.includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || status === statusFilter.toLowerCase();
+    const matchesSearch =
+      firmName.includes(searchTerm.toLowerCase()) ||
+      invoiceNo.includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || status === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
@@ -68,7 +81,9 @@ const Invoices = () => {
   const totalAmount = totals.reduce((sum, val) => sum + val, 0) || 0;
 
   const paidTotals = filteredInvoices
-    .filter((invoice) => invoice.invoiceMeta.paymentStatus.toLowerCase() === "paid")
+    .filter(
+      (invoice) => invoice.invoiceMeta.paymentStatus.toLowerCase() === "paid"
+    )
     .map((invoice) => {
       let sum = 0;
       invoice.items.forEach((item) => {
@@ -79,7 +94,9 @@ const Invoices = () => {
   const paidAmount = paidTotals.reduce((sum, val) => sum + val, 0) || 0;
 
   const pendingTotals = filteredInvoices
-    .filter((invoice) => invoice.invoiceMeta.paymentStatus.toLowerCase() === "pending")
+    .filter(
+      (invoice) => invoice.invoiceMeta.paymentStatus.toLowerCase() === "pending"
+    )
     .map((invoice) => {
       let sum = 0;
       invoice.items.forEach((item) => {
@@ -138,12 +155,14 @@ const Invoices = () => {
   // Handle View Invoice
   const handleViewInvoice = (invoiceId) => {
     console.log(`Navigating to view invoice with ID: ${invoiceId}`);
-    const viewInvoice=filteredInvoices.filter(invoice=>invoice._id===invoiceId)
-    console.log(viewInvoice)
-    // Placeholder: Replace with actual navigation logic, e.g., using react-router
-    // navigate(`/invoices/${invoiceId}`);
+    const viewInvoice = filteredInvoices.filter(
+      (invoice) => invoice._id === invoiceId
+    );
+    console.log(viewInvoice[0])
+    localStorage.setItem("savedInvoice",JSON.stringify(viewInvoice[0]))
+    navigate("/bill",{state:{useLocal:true}})
   };
-  
+
   // Handle Delete Invoice
   const handleDeleteInvoice = async (invoiceId) => {
     try {
@@ -151,15 +170,15 @@ const Invoices = () => {
       const userdata = JSON.parse(userdataRaw);
       const authorEmail = userdata?.email;
       const encodedEmail = encodeURIComponent(authorEmail);
-      console.log(invoiceId)
-      console.log(encodedEmail)
-await axios.delete(
-  `http://localhost:5000/api/protected/deleteinvoice/${invoiceId}`,
-  {
-    data: { authorEmail },
-    withCredentials: true
-  }
-);
+      console.log(invoiceId);
+      console.log(encodedEmail);
+      await axios.delete(
+        `http://localhost:5000/api/protected/deleteinvoice/${invoiceId}`,
+        {
+          data: { authorEmail },
+          withCredentials: true,
+        }
+      );
 
       setInvoices(invoices.filter((invoice) => invoice._id !== invoiceId));
       console.log(`Invoice ${invoiceId} deleted successfully`);
@@ -168,10 +187,9 @@ await axios.delete(
       setError("Failed to delete invoice. Please try again.");
     }
   };
-  const navigate=useNavigate()
- function newInvoice() {
-  navigate("/templates")
- }
+  function newInvoice() {
+    navigate("/templates");
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -179,8 +197,12 @@ await axios.delete(
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center py-6 gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-blue-900">Invoice Management</h1>
-              <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage and track your invoices</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-blue-900">
+                Invoice Management
+              </h1>
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">
+                Manage and track your invoices
+              </p>
             </div>
             {/* <button className="bg-blue-900 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-800 transition-colors duration-200 flex items-center justify-center space-x-2 shadow-sm text-sm sm:text-base">
               <Plus size={18} className="sm:w-5 sm:h-5" />
@@ -193,7 +215,9 @@ await axios.delete(
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error Message */}
         {error && (
-          <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">{error}</div>
+          <div className="bg-red-100 text-red-800 p-4 rounded-lg mb-4">
+            {error}
+          </div>
         )}
 
         {/* Stats Cards */}
@@ -204,8 +228,12 @@ await axios.delete(
                 <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-blue-900" />
               </div>
               <div className="ml-3 sm:ml-4">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Amount</p>
-                <p className="text-lg sm:text-2xl font-bold text-blue-900">${totalAmount.toLocaleString()}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                  Total Amount
+                </p>
+                <p className="text-lg sm:text-2xl font-bold text-blue-900">
+                  ${totalAmount.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
@@ -215,8 +243,12 @@ await axios.delete(
                 <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
               </div>
               <div className="ml-3 sm:ml-4">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Paid</p>
-                <p className="text-lg sm:text-2xl font-bold text-green-600">${paidAmount.toLocaleString()}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                  Paid
+                </p>
+                <p className="text-lg sm:text-2xl font-bold text-green-600">
+                  ${paidAmount.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
@@ -226,8 +258,12 @@ await axios.delete(
                 <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-600" />
               </div>
               <div className="ml-3 sm:ml-4">
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-lg sm:text-2xl font-bold text-yellow-600">${pendingAmount.toLocaleString()}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">
+                  Pending
+                </p>
+                <p className="text-lg sm:text-2xl font-bold text-yellow-600">
+                  ${pendingAmount.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
@@ -276,9 +312,16 @@ await axios.delete(
         ) : filteredInvoices.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border p-8 sm:p-12 text-center">
             <FileText className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No invoices found</h3>
-            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">Get started by creating your first invoice.</p>
-            <button onClick={newInvoice} className="bg-blue-900 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-800 transition-colors duration-200 text-sm sm:text-base">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
+              No invoices found
+            </h3>
+            <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
+              Get started by creating your first invoice.
+            </p>
+            <button
+              onClick={newInvoice}
+              className="bg-blue-900 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-800 transition-colors duration-200 text-sm sm:text-base"
+            >
               Create Invoice
             </button>
           </div>
@@ -311,36 +354,63 @@ await axios.delete(
                             <FileText className="h-4 w-4 text-blue-900" />
                           </div>
                           <div>
-                            <div className="text-sm font-medium text-blue-900">{invoice.invoiceMeta?.invoiceNo || "N/A"}</div>
-                            <div className="text-sm text-gray-500">{invoice.items?.length || 0} items</div>
+                            <div className="text-sm font-medium text-blue-900">
+                              {invoice.invoiceMeta?.invoiceNo || "N/A"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {invoice.items?.length || 0} items
+                            </div>
                           </div>
                         </div>
                       </div>
                       <div className="table-cell px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{invoice.customerInfo?.customerFirm || "Unknown Client"}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {invoice.customerInfo?.customerFirm ||
+                            "Unknown Client"}
+                        </div>
                       </div>
                       <div className="table-cell px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-gray-900">
                           $
                           {invoice.items
-                            .reduce((sum, item) => sum + item.price * (1 + item.tax / 100) * item.quantity, 0)
-                            .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            .reduce(
+                              (sum, item) =>
+                                sum +
+                                item.price *
+                                  (1 + item.tax / 100) *
+                                  item.quantity,
+                              0
+                            )
+                            .toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
                         </div>
                       </div>
                       <div className="table-cell px-6 py-4 whitespace-nowrap">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${getStatusColor(
-                            invoice.invoiceMeta?.paymentStatus || invoice.status || "unknown"
+                            invoice.invoiceMeta?.paymentStatus ||
+                              invoice.status ||
+                              "unknown"
                           )}`}
                         >
-                          {invoice.invoiceMeta?.paymentStatus || invoice.status || "Unknown"}
+                          {invoice.invoiceMeta?.paymentStatus ||
+                            invoice.status ||
+                            "Unknown"}
                         </span>
                       </div>
                       <div className="table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {invoice.createdAt ? new Date(invoice.createdAt).toLocaleDateString() : "N/A"}
+                        {invoice.createdAt
+                          ? new Date(invoice.createdAt).toLocaleDateString()
+                          : "N/A"}
                       </div>
                       <div className="table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {invoice.invoiceMeta?.date ? new Date(invoice.invoiceMeta.date).toLocaleDateString() : "N/A"}
+                        {invoice.invoiceMeta?.date
+                          ? new Date(
+                              invoice.invoiceMeta.date
+                            ).toLocaleDateString()
+                          : "N/A"}
                       </div>
                       <div className="table-cell px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
@@ -370,35 +440,59 @@ await axios.delete(
                         <FileText className="h-4 w-4 text-blue-900" />
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-blue-900">{invoice.invoiceMeta?.invoiceNo || "N/A"}</div>
-                        <div className="text-xs text-gray-500">{invoice.items?.length || 0} items</div>
+                        <div className="text-sm font-medium text-blue-900">
+                          {invoice.invoiceMeta?.invoiceNo || "N/A"}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {invoice.items?.length || 0} items
+                        </div>
                       </div>
                     </div>
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full capitalize ${getStatusColor(
-                        invoice.invoiceMeta?.paymentStatus || invoice.status || "unknown"
+                        invoice.invoiceMeta?.paymentStatus ||
+                          invoice.status ||
+                          "unknown"
                       )}`}
                     >
-                      {invoice.invoiceMeta?.paymentStatus || invoice.status || "Unknown"}
+                      {invoice.invoiceMeta?.paymentStatus ||
+                        invoice.status ||
+                        "Unknown"}
                     </span>
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{invoice.customerInfo?.customerFirm || "Unknown Client"}</div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {invoice.customerInfo?.customerFirm || "Unknown Client"}
+                    </div>
                     <div className="text-lg font-bold text-gray-900">
                       $
                       {invoice.items
-                        .reduce((sum, item) => sum + item.price * (1 + item.tax / 100) * item.quantity, 0)
-                        .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        .reduce(
+                          (sum, item) =>
+                            sum +
+                            item.price * (1 + item.tax / 100) * item.quantity,
+                          0
+                        )
+                        .toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
                     </div>
                   </div>
                   <div className="flex justify-between text-xs text-gray-500">
                     <div>
                       <span className="font-medium">Created:</span>{" "}
-                      {invoice.createdAt ? new Date(invoice.createdAt).toLocaleDateString() : "N/A"}
+                      {invoice.createdAt
+                        ? new Date(invoice.createdAt).toLocaleDateString()
+                        : "N/A"}
                     </div>
                     <div>
                       <span className="font-medium">Invoice Date:</span>{" "}
-                      {invoice.invoiceMeta?.date ? new Date(invoice.invoiceMeta.date).toLocaleDateString() : "N/A"}
+                      {invoice.invoiceMeta?.date
+                        ? new Date(
+                            invoice.invoiceMeta.date
+                          ).toLocaleDateString()
+                        : "N/A"}
                     </div>
                   </div>
                   <div className="flex justify-end space-x-2 pt-2 border-t border-gray-100">

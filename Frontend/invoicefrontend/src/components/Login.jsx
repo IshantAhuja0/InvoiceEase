@@ -1,24 +1,32 @@
-import React, { useContext, useState } from "react";
-import { motion } from "framer-motion";
-import { Mail, Lock, FileText } from "lucide-react";
+import React, { useContext, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, FileText, X, CheckCircle } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
 
 export default function Login() {
-  const { user, login, logout } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  const navigate = useNavigate();
+  const [showForgotOverlay, setShowForgotOverlay] = useState(false);
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [mailOtp, setMailOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const OTP_LENGTH = 6;
+  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
+  const otpRefs = useRef([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Clear previous error
+    setError("");
 
     if (!email || !password) {
-      setError("❗ Please fill in both fields.");
+      setError("Please fill in both email and password fields.");
       return;
     }
 
@@ -28,140 +36,394 @@ export default function Login() {
         { email, password },
         { withCredentials: true }
       );
-
-      console.log("✅ HTTP Status:", response.status);
-      console.log("✅ Message:", response.data.message);
-
       sessionStorage.setItem("user data", JSON.stringify({ email }));
       login(email);
       navigate("/invoices");
     } catch (error) {
-      if (error.response) {
-        const status = error.response.status;
-        const message = error.response.data.message;
+      const message = error.response?.data?.message;
+      setError(
+        error.response
+          ? error.response.status === 401
+            ? "Invalid email address."
+            : error.response.status === 402
+            ? "Incorrect password."
+            : message || "Authentication failed."
+          : "Server connection error. Please try again."
+      );
+    }
+  };
 
-        console.log("❌ Login error:", status, message);
+  const handleOTPChange = (e, idx) => {
+    const value = e.target.value;
+    if (!/^\d?$/.test(value)) return;
 
-        if (status === 401) {
-          setError("❗ User not found. Invalid email!");
-        } else if (status === 402) {
-          setError("❗ Incorrect password!");
-        } else {
-          setError(`❗ ${message || "Internal Server Error"}`);
-        }
-      } else if (error.request) {
-        console.log("❌ No response from server:", error.request);
-        setError("❗ Server not responding. Please try again later.");
-      } else {
-        console.log("❌ Error:", error.message);
-        setError("❗ An unexpected error occurred.");
-      }
+    const newOtp = [...otp];
+    newOtp[idx] = value;
+    setOtp(newOtp);
+
+    if (value && idx < OTP_LENGTH - 1) {
+      otpRefs.current[idx + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (e, idx) => {
+    if (e.key === "Backspace" && !otp[idx] && idx > 0) {
+      otpRefs.current[idx - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    const paste = e.clipboardData.getData("text").trim();
+    if (!/^\d{1,6}$/.test(paste)) return;
+
+    const newOtp = Array(OTP_LENGTH).fill("");
+    paste.split("").slice(0, OTP_LENGTH).forEach((char, i) => {
+      newOtp[i] = char;
+    });
+    setOtp(newOtp);
+    otpRefs.current[Math.min(paste.length - 1, OTP_LENGTH - 1)]?.focus();
+  };
+
+  const sendOTP = async () => {
+    if (!email) {
+      setError("Please enter an email address.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:5000/send-otp", { email });
+      setMailOtp(String(response.data.data));
+      setShowForgotOverlay(true);
+      setError("");
+    } catch (error) {
+      setError(
+        error.response
+          ? error.response.status === 404
+            ? "Email not registered."
+            : error.response.status === 401
+            ? "Email is required."
+            : error.response.status === 500
+            ? "Server error. Please try again."
+            : "Unexpected error occurred."
+          : error.request
+          ? "No server response. Check your connection."
+          : `Error: ${error.message}`
+      );
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const enteredOtp = otp.join("");
+    if (enteredOtp.length !== OTP_LENGTH) {
+      setOtpError("Please enter all 6 digits.");
+      return;
+    }
+
+    if (enteredOtp === mailOtp) {
+      setShowForgotOverlay(false);
+      setShowSuccessOverlay(true);
+      setOtp(Array(OTP_LENGTH).fill(""));
+      setOtpError("");
+    } else {
+      setOtpError("Incorrect OTP.");
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      setError("Please fill in both password fields.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
+
+    try {
+      await axios.post("http://localhost:5000/reset-password", {
+        email,
+        newPassword,
+      });
+      setShowSuccessOverlay(false);
+      setNewPassword("");
+      setConfirmPassword("");
+      setError("");
+      alert("Password reset successfully!");
+    } catch (error) {
+      setError(
+        error.response
+          ? error.response.data.message || "Failed to reset password."
+          : "Server connection error. Please try again."
+      );
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white bg-[url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2740%27 height=%2740%27 viewBox=%270 0 40 40%27%3E%3Crect x=%270%27 y=%270%27 width=%2740%27 height=%2740%27 fill=%27%23f3f4f6%27/%3E%3Cpath d=%27M0 0h40v1H0zM0 39h40v1H0zM0 0v40h1V0zM39 0v40h1V0z%27 fill=%27%23e5e7eb%27/%3E%3C/svg%3E%27)] bg-repeat">
-
-
-      {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <motion.div
+        className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full border border-blue-200"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <motion.div
-          className="relative bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-sm sm:max-w-md border border-blue-200"
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="bg-blue-900 rounded-full p-3 w-12 h-12 flex items-center justify-center -mt-12 mx-auto"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, type: "spring" }}
         >
-          {/* Decorative Icon */}
-          <motion.div
-            className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-blue-900 rounded-full p-3"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.4, type: "spring" }}
-          >
-            <FileText className="w-8 h-8 text-white" />
-          </motion.div>
+          <FileText className="w-6 h-6 text-white" />
+        </motion.div>
 
-          <motion.h2
-            className="text-2xl sm:text-3xl font-bold text-center text-blue-900 mt-6 mb-2 select-none"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            Login to InvoiceEase
-          </motion.h2>
+        <h2 className="text-2xl font-bold text-center text-blue-900 mt-6 mb-2">
+          Login to InvoiceEase
+        </h2>
+        <p className="text-center text-blue-800 text-sm mb-4">
+          Welcome back! Generate invoices with ease.
+        </p>
 
+        {error && (
           <motion.p
-            className="text-center text-blue-800 text-sm mb-4 sm:mb-6"
-            initial={{ y: -10, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
+            className="mb-4 text-center text-red-600 text-sm bg-red-50 p-2 rounded"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
           >
-            Welcome back! Generate invoices with ease.
+            {error}
           </motion.p>
+        )}
 
-          {error && (
-            <motion.p
-              className="mb-4 text-center text-red-600 text-sm font-medium"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {error}
-            </motion.p>
-          )}
-
-          {/* Email Field */}
-          <motion.div className="relative mb-4" whileFocus={{ scale: 1.01 }} whileHover={{ scale: 1.01 }}>
-            <Mail
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-900"
-              size={18}
-            />
+        <div className="space-y-4">
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900" size={18} />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
-              required
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-blue-300 placeholder-blue-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 bg-gradient-to-r from-white to-blue-50 transition"
+              className="w-full pl-10 pr-4 py-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+              aria-label="Email address"
             />
-          </motion.div>
+          </div>
 
-          {/* Password Field */}
-          <motion.div className="relative mb-4 sm:mb-6" whileFocus={{ scale: 1.01 }} whileHover={{ scale: 1.01 }}>
-            <Lock
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-900"
-              size={18}
-            />
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900" size={18} />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              required
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-blue-300 placeholder-blue-500 text-sm focus:outline-none focus:ring-2 focus:ring-blue-900 bg-gradient-to-r from-white to-blue-50 transition"
+              className="w-full pl-10 pr-4 py-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+              aria-label="Password"
             />
-          </motion.div>
+          </div>
 
-          {/* Login Button */}
+          <p
+            className="text-right text-sm text-blue-800 hover:underline cursor-pointer"
+            onClick={sendOTP}
+          >
+            Forgot Password?
+          </p>
+
           <motion.button
-            type="submit"
             onClick={handleSubmit}
-            whileTap={{ scale: 0.97 }}
+            whileTap={{ scale: 0.98 }}
             whileHover={{ scale: 1.02 }}
-            className="w-full bg-blue-900 hover:bg-blue-800 text-white font-medium py-2 rounded-lg shadow-md transition"
+            className="w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded shadow-md"
           >
             Login
           </motion.button>
 
-          {/* Register Link */}
-          <p className="mt-4 sm:mt-6 text-center text-blue-800 text-sm">
+          <p className="text-center text-blue-800 text-sm">
             Don’t have an account?{" "}
-            <a href="/register" className="underline hover:text-blue-900 transition">
+            <a href="/register" className="underline hover:text-blue-900">
               Register
             </a>
           </p>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
 
+      <AnimatePresence>
+        {showForgotOverlay && (
+          <motion.div
+            className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="bg-white p-6 rounded-xl max-w-md w-full relative"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              transition={{ duration: 0.3 }}
+            >
+              <button
+                className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+                onClick={() => {
+                  setShowForgotOverlay(false);
+                  setOtp(Array(OTP_LENGTH).fill(""));
+                  setOtpError("");
+                }}
+                aria-label="Close"
+              >
+                <X size={24} />
+              </button>
+
+              <h3 className="text-center text-lg font-semibold text-blue-900 mb-4">
+                Enter 6-digit OTP sent to <br />
+                <span className="font-mono text-blue-700">{email}</span>
+              </h3>
+
+              <div className="flex justify-center gap-2 mb-4" onPaste={handlePaste}>
+                {otp.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    type="text"
+                    maxLength={1}
+                    ref={(ref) => (otpRefs.current[idx] = ref)}
+                    value={digit}
+                    onChange={(e) => handleOTPChange(e, idx)}
+                    onKeyDown={(e) => handleKeyDown(e, idx)}
+                    className="w-12 h-12 text-center text-xl border border-blue-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    aria-label={`OTP digit ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
+              {otpError && (
+                <motion.p
+                  className="text-center text-red-600 text-sm bg-red-50 p-2 rounded mb-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {otpError}
+                </motion.p>
+              )}
+
+              <motion.button
+                onClick={handleVerifyOtp}
+                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.02 }}
+                className="w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded"
+              >
+                Verify OTP
+              </motion.button>
+
+              <p className="text-center text-sm text-blue-800 mt-4">
+                Didn’t get it?{" "}
+                <span
+                  onClick={sendOTP}
+                  className="underline cursor-pointer hover:text-blue-900"
+                >
+                  Resend OTP
+                </span>
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showSuccessOverlay && (
+          <motion.div
+            className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <motion.div
+              className="bg-white p-6 rounded-xl max-w-md w-full relative"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              transition={{ duration: 0.3 }}
+            >
+              <button
+                className="absolute top-4 right-4 text-gray-500 hover:text-red-500"
+                onClick={() => {
+                  setShowSuccessOverlay(false);
+                  setNewPassword("");
+                  setConfirmPassword("");
+                  setError("");
+                }}
+                aria-label="Close"
+              >
+               Sessio<X size={24} />
+              </button>
+
+              <motion.div
+                className="flex justify-center mb-4"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring" }}
+              >
+                <CheckCircle className="w-10 h-10 text-green-500" />
+              </motion.div>
+
+              <h3 className="text-center text-xl font-semibold text-blue-900 mb-4">
+                OTP Verified Successfully!
+              </h3>
+              <p className="text-center text-blue-800 text-sm mb-4">
+                Enter your new password below.
+              </p>
+
+              <div className="space-y-4">
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900" size={18} />
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New Password"
+                    className="w-full pl-10 pr-4 py-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-900"
+                    aria-label="New password"
+                  />
+                </div>
+
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900" size={18} />
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm Password"
+                    className="w-full pl-10 pr-4 py-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-900"
+                    aria-label="Confirm password"
+                  />
+                </div>
+
+                {error && (
+                  <motion.p
+                    className="text-center text-red-600 text-sm bg-red-50 p-2 rounded"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {error}
+                  </motion.p>
+                )}
+
+                <motion.button
+                  onClick={handleResetPassword}
+                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.02 }}
+                  className="w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded"
+                >
+                  Reset Password
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
