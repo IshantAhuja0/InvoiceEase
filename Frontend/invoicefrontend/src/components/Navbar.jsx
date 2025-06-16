@@ -113,7 +113,7 @@ useEffect(() => {
           {/* Dropdown Menu */}
           {user && dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 text-sm text-gray-800 z-50">
-              <button
+              {/* <button
                 className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition"
                 onClick={() => {
                   setDropdownOpen(false);
@@ -122,7 +122,7 @@ useEffect(() => {
               >
                 <User className="w-4 h-4" />
                 Profile
-              </button>
+              </button> */}
               <button
                 className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 transition text-red-600"
                 onClick={handleLogout}
