@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -6,7 +6,7 @@ import InvoiceTemplate from "../../Invoice Templates/InvoiceTemplate";
 import { ArrowDownTrayIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import { invoiceThemes } from "../../Invoice Templates/invoiceThemes";
 import styled from "styled-components";
-
+import TemplateContext from "../../Context/TemplateContext";
 const InvoicePDF = () => {
   const location=useLocation()
   const useLocal=location.state?.useLocal || false
@@ -60,10 +60,14 @@ const InvoicePDF = () => {
   };
 
   // Theme selector handler
+  const {template,setTemplate}=useContext(TemplateContext)
   const handleThemeChange = (e) => {
     const themeName = e.target.value;
-    const newTheme = invoiceThemes.find((theme) => theme.name === themeName);
-    setSelectedTheme(newTheme);
+    // const themeKey = e.target.key;
+    const newTheme = {theme:invoiceThemes[themeName],id:themeName};
+        setTemplate(newTheme);
+        console.log(template)
+    // setSelectedTheme(newTheme);
   };
 
   return (
@@ -75,16 +79,18 @@ const InvoicePDF = () => {
           onChange={handleThemeChange}
           value={selectedTheme.name}
         >
-          {invoiceThemes.map((theme) => (
-            <option key={theme.name} value={theme.name}>
-              {theme.name}
+          {/* {invoiceThemes.map((theme) => ( */}
+          {Object.keys(invoiceThemes).map((key, index) => (
+           
+            <option key={key} value={key}>
+              {invoiceThemes[key].name}
             </option>
           ))}
         </Select>
       </ThemeSelector>
 
       <InvoiceContainer ref={componentRef}>
-        <InvoiceTemplate theme={selectedTheme} local={useLocal}/>
+        <InvoiceTemplate local={useLocal}/>
       </InvoiceContainer>
 
       <ButtonContainer>

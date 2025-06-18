@@ -45,6 +45,7 @@ const Templates = () => {
 
   const handleSelect = (key) => {
     const selected = invoiceThemes[key];
+    console.log(selected)
     if (!selected) return;
 
     setTemplate({
@@ -55,6 +56,7 @@ const Templates = () => {
 
   useEffect(() => {
     if (isTemplateReady) {
+
       navigate("/invoiceform");
       setIsTemplateReady(false);
     }

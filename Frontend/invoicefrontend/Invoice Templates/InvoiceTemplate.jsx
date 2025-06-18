@@ -1,11 +1,15 @@
 import React, { useContext, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { InvoiceContext } from "../Context/InvoiceContext";
-
-const InvoiceTemplate = ({ theme, local }) => {
+import TemplateContext from "../Context/TemplateContext";
+import { invoiceThemes } from "./invoiceThemes";
+const InvoiceTemplate = ({ local }) => {
   let invoiceCtx = useContext(InvoiceContext);
   if(local)invoiceCtx=JSON.parse(localStorage.getItem("savedInvoice"))
   const [loading, setLoading] = useState(true);
+  const {template}=useContext(TemplateContext)
+  const themeId=template.id
+  const theme=invoiceThemes[themeId]
 
   // Simulate loading for demo purposes (remove if data fetching is handled elsewhere)
   useEffect(() => {
