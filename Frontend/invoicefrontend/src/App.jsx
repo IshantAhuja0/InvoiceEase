@@ -11,24 +11,25 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Invoices from "./components/Invoices";
 import AuthRequired from "../Auth/AuthRequired";
+import NotFound from "./components/NotFound"; // 🔥 Import NotFound
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          Add more nested routes here
-          <Route index path="/" element={<Home />} />
-          <Route path="/templates" element={<Templates />} />
-          <Route path="/invoiceform" element={<InvoiceForm />} />
-          <Route path="/bill" element={<InvoicePDF />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/invoices" element={<AuthRequired> <Invoices/> </AuthRequired>} />
+          {/* Nested Routes */}
+          <Route index element={<Home />} />
+          <Route path="templates" element={<Templates />} />
+          <Route path="invoiceform" element={<InvoiceForm />} />
+          <Route path="bill" element={<InvoicePDF />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="invoices" element={<AuthRequired><Invoices /></AuthRequired>} />
+          <Route path="*" element={<NotFound />} /> {/* ✅ Catch-all route */}
         </Route>
-        {/* Define other routes that don't use the layout outside the Layout Route */}
       </Routes>
-    </BrowserRouter>  
+    </BrowserRouter>
   );
 }
 
