@@ -37,7 +37,7 @@ const login = async (req, res) => {
       //through these our cookies are only modifiable through backend and can only be accessed not modified in frontend
       httpOnly: true,
       secure: true,
-      sameSite: 'Lax',
+      sameSite: 'none',
     }
     return res.status(200)
       .cookie("accessToken", token, options)
@@ -123,7 +123,7 @@ const registerUser = async (req, res) => {
       //through these our cookies are only modifiable through backend and can only be accessed not modified in frontend
       httpOnly: true,
       secure: true,
-      sameSite: 'Lax',
+      sameSite: 'none',
     }
     return res.status(201)
       .cookie("accessToken", token, options)

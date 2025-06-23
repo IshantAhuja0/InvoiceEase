@@ -4,6 +4,8 @@ const storeInvoice = async (dataStoringInvoice) => {
   console.log("Storing in DB...");
 
   try {
+            const baseurl = import.meta.env.VITE_BACKEND_PROTECTED_URL;
+        console.log("base" + baseurl);
     const userdataRaw = sessionStorage.getItem("user data");
     const userdata = JSON.parse(userdataRaw);
     const authorEmail = userdata?.email;
@@ -15,7 +17,7 @@ const storeInvoice = async (dataStoringInvoice) => {
     const bodyWithEmail = { ...dataStoringInvoice, authorEmail };
     console.log(bodyWithEmail)
     const response = await axios.post(
-      'http://localhost:5000/api/protected/storeinvoice',
+      `${baseurl}/storeinvoice`,
       bodyWithEmail,
       {
         withCredentials: true, // ✅ required for sending cookie
@@ -32,7 +34,7 @@ const storeInvoice = async (dataStoringInvoice) => {
     const encodedEmail = encodeURIComponent(authorEmail);
 
     const updateOwnerRecord = await axios.patch(
-      `http://localhost:5000/api/protected/updateinvoicearray/${encodedEmail}`,
+      `${baseurl}/updateinvoicearray/${encodedEmail}`,
       { invoiceId },
       {
         withCredentials: true, // ✅ include cookie in PATCH too

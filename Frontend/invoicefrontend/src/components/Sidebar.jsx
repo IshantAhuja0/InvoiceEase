@@ -40,6 +40,8 @@ export default function Sidebar({ isOpen, sidebarRef }) {
 
     const navigate=useNavigate()
   const handleLogout = async () => {
+            const baseurl = import.meta.env.VITE_BACKEND_PROTECTED_URL;
+        console.log("base" + baseurl);
     try {
       const userdataRaw = sessionStorage.getItem("user data");
       if (userdataRaw) {
@@ -49,7 +51,7 @@ export default function Sidebar({ isOpen, sidebarRef }) {
         );
       }
       const result = await axios.post(
-        "http://localhost:5000/api/protected/logout",
+        `${baseurl}/logout`,
         {},
         {
           withCredentials: true,

@@ -27,8 +27,10 @@ export default function Register() {
 
     const userDetail = { name, email, password, mobile };
     try {
+              const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
+        console.log("base" + baseurl);
       const res = await axios.post(
-        "http://localhost:5000/register",
+        `${baseurl}/register`,
         userDetail,
         {
           withCredentials: true,

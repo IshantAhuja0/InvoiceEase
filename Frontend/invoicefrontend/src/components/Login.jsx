@@ -31,8 +31,10 @@ export default function Login() {
     }
 
     try {
+      const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
+        console.log("base" + baseurl);
       const response = await axios.post(
-        "http://localhost:5000/login",
+        `${baseurl}/login`,
         { email, password },
         { withCredentials: true }
       );
@@ -91,7 +93,9 @@ export default function Login() {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/send-otp", { email });
+       const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
+        console.log("base" + baseurl);
+      const response = await axios.post(`${baseurl}/send-otp`, { email });
       setMailOtp(String(response.data.data));
       setShowForgotOverlay(true);
       setError("");
@@ -144,7 +148,9 @@ export default function Login() {
     }
 
     try {
-      await axios.post("http://localhost:5000/reset-password", {
+              const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
+        console.log("base" + baseurl);
+      await axios.post(`${baseurl}/reset-password`, {
         email,
         newPassword,
       });

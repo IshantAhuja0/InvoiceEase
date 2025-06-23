@@ -29,6 +29,8 @@ useEffect(() => {
   const navigate=useNavigate()
   const handleLogout = async () => {
     try {
+              const baseurl = import.meta.env.VITE_BACKEND_PROTECTED_URL;
+        console.log("base" + baseurl);
       const userdataRaw = sessionStorage.getItem("user data");
       if (userdataRaw) {
         const deleteFromLocalStorage = sessionStorage.removeItem("user data");
@@ -36,8 +38,7 @@ useEffect(() => {
           "deleted email from local storage : " + deleteFromLocalStorage
         );
       }
-      const result = await axios.post(
-        "http://localhost:5000/api/protected/logout",
+      const result = await axios.post(`${baseurl}/logout`,
         {},
         {
           withCredentials: true,

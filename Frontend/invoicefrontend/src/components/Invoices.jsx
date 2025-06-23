@@ -123,16 +123,18 @@ const Invoices = () => {
       setIsLoading(true);
       setError(null);
       try {
+        const baseurl = import.meta.env.VITE_BACKEND_PROTECTED_URL;
+        console.log("base" + baseurl);
         const userdataRaw = sessionStorage.getItem("user data");
         const userdata = JSON.parse(userdataRaw);
         const authorEmail = userdata?.email;
         const encodedEmail = encodeURIComponent(authorEmail);
         const response = await axios.post(
-          `http://localhost:5000/api/protected/getinvoicearray/${encodedEmail}`,
+          `${baseurl}/getinvoicearray/${encodedEmail}`,
           {},
           { withCredentials: true, timeout: 10000 }
         );
-
+        
         if (response.data && Array.isArray(response.data.invoices)) {
           console.log("Fetched invoices:", response.data.invoices);
           setInvoices(response.data.invoices);
@@ -162,10 +164,11 @@ const Invoices = () => {
     localStorage.setItem("savedInvoice",JSON.stringify(viewInvoice[0]))
     navigate("/bill",{state:{useLocal:true}})
   };
-
+  
   // Handle Delete Invoice
   const handleDeleteInvoice = async (invoiceId) => {
     try {
+      const baseurl = import.meta.env.VITE_BACKEND_PROTECTED_URL;
       const userdataRaw = sessionStorage.getItem("user data");
       const userdata = JSON.parse(userdataRaw);
       const authorEmail = userdata?.email;
@@ -173,13 +176,13 @@ const Invoices = () => {
       console.log(invoiceId);
       console.log(encodedEmail);
       await axios.delete(
-        `http://localhost:5000/api/protected/deleteinvoice/${invoiceId}`,
+        `${baseurl}/deleteinvoice/${invoiceId}`,
         {
           data: { authorEmail },
           withCredentials: true,
         }
       );
-
+      
       setInvoices(invoices.filter((invoice) => invoice._id !== invoiceId));
       console.log(`Invoice ${invoiceId} deleted successfully`);
     } catch (error) {
@@ -355,7 +358,7 @@ const Invoices = () => {
                           </div>
                           <div>
                             <div className="text-sm font-medium text-blue-900">
-                              {invoice.invoiceMeta?.invoiceNo || "N/A"}
+                              {invoice.customerInfo?.customerFirm || "N/A"}
                             </div>
                             <div className="text-sm text-gray-500">
                               {invoice.items?.length || 0} items

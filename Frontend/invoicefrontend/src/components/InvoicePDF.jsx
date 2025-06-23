@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -7,21 +7,34 @@ import { ArrowDownTrayIcon, PhotoIcon } from "@heroicons/react/24/solid";
 import { invoiceThemes } from "../../Invoice Templates/invoiceThemes";
 import styled from "styled-components";
 import TemplateContext from "../../Context/TemplateContext";
+
 const InvoicePDF = () => {
-  const location=useLocation()
-  const useLocal=location.state?.useLocal || false
+  const location = useLocation();
+  const useLocal = location.state?.useLocal || false;
+
+  const { template, setTemplate } = useContext(TemplateContext);
+
+  // Fallback to first theme key if context is empty
+  const defaultThemeKey = Object.keys(invoiceThemes)[0];
+  const [selectedKey, setSelectedKey] = useState(template?.id || defaultThemeKey);
+  const [selectedTheme, setSelectedTheme] = useState(template?.theme || invoiceThemes[defaultThemeKey]);
 
   const componentRef = useRef();
-  const [selectedTheme, setSelectedTheme] = useState(invoiceThemes[0]);
 
-  // PDF Download Handler
+  // Update selected theme when context changes (only on first render)
+  useEffect(() => {
+    if (template?.theme) {
+      setSelectedTheme(template.theme);
+      setSelectedKey(template.id);
+    }
+  }, [template]);
+
   const handleDownloadPDF = async () => {
     try {
       const canvas = await html2canvas(componentRef.current, {
         scale: 3,
         useCORS: true,
         backgroundColor: "#ffffff",
-        logging: true,
       });
 
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
@@ -39,14 +52,12 @@ const InvoicePDF = () => {
     }
   };
 
-  // Save Image Handler
   const handleSaveImage = async () => {
     try {
       const canvas = await html2canvas(componentRef.current, {
         scale: 1.5,
         useCORS: true,
         backgroundColor: "#ffffff",
-        logging: true,
       });
 
       const image = canvas.toDataURL("image/jpeg", 1.0);
@@ -59,29 +70,20 @@ const InvoicePDF = () => {
     }
   };
 
-  // Theme selector handler
-  const {template,setTemplate}=useContext(TemplateContext)
   const handleThemeChange = (e) => {
-    const themeName = e.target.value;
-    // const themeKey = e.target.key;
-    const newTheme = {theme:invoiceThemes[themeName],id:themeName};
-        setTemplate(newTheme);
-        console.log(template)
-    // setSelectedTheme(newTheme);
+    const newKey = e.target.value;
+    const newTheme = invoiceThemes[newKey];
+    setSelectedKey(newKey);
+    setSelectedTheme(newTheme);
+    setTemplate({ theme: newTheme, id: newKey });
   };
 
   return (
     <Container>
       <ThemeSelector className="mt-8 mx-6">
         <Label htmlFor="theme-select">Select Theme:</Label>
-        <Select
-          id="theme-select"
-          onChange={handleThemeChange}
-          value={selectedTheme.name}
-        >
-          {/* {invoiceThemes.map((theme) => ( */}
-          {Object.keys(invoiceThemes).map((key, index) => (
-           
+        <Select id="theme-select" value={selectedKey} onChange={handleThemeChange}>
+          {Object.keys(invoiceThemes).map((key) => (
             <option key={key} value={key}>
               {invoiceThemes[key].name}
             </option>
@@ -90,7 +92,7 @@ const InvoicePDF = () => {
       </ThemeSelector>
 
       <InvoiceContainer ref={componentRef}>
-        <InvoiceTemplate local={useLocal}/>
+        <InvoiceTemplate local={useLocal} />
       </InvoiceContainer>
 
       <ButtonContainer>
@@ -107,6 +109,9 @@ const InvoicePDF = () => {
   );
 };
 
+export default InvoicePDF;
+
+// Styled components
 const Container = styled.div`
   padding: 1rem;
   max-width: 100%;
@@ -179,7 +184,6 @@ const InvoiceContainer = styled.div`
 
   @media (max-width: 768px) {
     width: 100%;
-    min-height: auto;
     padding: 1rem;
   }
 
@@ -255,5 +259,3 @@ const Button = styled.button`
     }
   }
 `;
-
-export default InvoicePDF;
