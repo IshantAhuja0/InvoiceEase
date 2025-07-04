@@ -34,12 +34,19 @@ const InvoiceForm = () => {
 
   const handleChange = (index, field, value) => {
     const updatedItems = [...items];
-    updatedItems[index][field] = value;
 
-    // Recalculate line_total
+    // Allow empty string in inputs to support clearing the field
+    updatedItems[index][field] =
+      value === "" ? "" : field === "description" ? value : Number(value);
+
+    // Recalculate line_total if quantity, price, and tax are all valid
     const { quantity, price, tax } = updatedItems[index];
-    const subtotal = quantity * price;
-    const taxAmount = (subtotal * tax) / 100;
+    const q = Number(quantity) || 0;
+    const p = Number(price) || 0;
+    const t = Number(tax) || 0;
+
+    const subtotal = q * p;
+    const taxAmount = (subtotal * t) / 100;
     updatedItems[index].line_total = subtotal + taxAmount;
 
     setItems(updatedItems);
@@ -87,12 +94,12 @@ const InvoiceForm = () => {
         items,
       };
       const result = await storeInvoice(dataStoringInvoice);
-      if(result.status!=200){
-        throw new Error("problem occured while storing invoice in db")
+      if (result.status != 200) {
+        throw new Error("problem occured while storing invoice in db");
       }
       console.log("invoice stored in db successfully");
     }
-    console.log(items)
+    console.log(items);
     navigate("/bill");
   };
   return (
@@ -365,7 +372,7 @@ const InvoiceForm = () => {
                           handleChange(
                             index,
                             name,
-                            type === "number"
+                            type === "number" && e.target.value !== ""
                               ? Number(e.target.value)
                               : e.target.value
                           )

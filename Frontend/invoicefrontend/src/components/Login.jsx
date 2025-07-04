@@ -20,19 +20,56 @@ export default function Login() {
   const OTP_LENGTH = 6;
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const otpRefs = useRef([]);
+  const [loading, setLoading] = useState(false);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+
+  //   if (!email || !password) {
+  //     setError("Please fill in both email and password fields.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
+  //       console.log("base" + baseurl);
+  //     const response = await axios.post(
+  //       `${baseurl}/login`,
+  //       { email, password },
+  //       { withCredentials: true }
+  //     );
+  //     sessionStorage.setItem("user data", JSON.stringify({ email }));
+  //     login(email);
+  //     navigate("/invoices");
+  //   } catch (error) {
+  //     const message = error.response?.data?.message;
+  //     setError(
+  //       error.response
+  //         ? error.response.status === 401
+  //           ? "Invalid email address."
+  //           : error.response.status === 402
+  //           ? "Incorrect password."
+  //           : message || "Authentication failed."
+  //         : "Server connection error. Please try again."
+  //     );
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return; // prevent double-clicks or rapid submissions
+
     setError("");
+    setLoading(true); // start loading
 
     if (!email || !password) {
       setError("Please fill in both email and password fields.");
+      setLoading(false); // reset loading
       return;
     }
 
     try {
       const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
-        console.log("base" + baseurl);
       const response = await axios.post(
         `${baseurl}/login`,
         { email, password },
@@ -52,6 +89,8 @@ export default function Login() {
             : message || "Authentication failed."
           : "Server connection error. Please try again."
       );
+    } finally {
+      setLoading(false); // reset loading after success or failure
     }
   };
 
@@ -79,9 +118,12 @@ export default function Login() {
     if (!/^\d{1,6}$/.test(paste)) return;
 
     const newOtp = Array(OTP_LENGTH).fill("");
-    paste.split("").slice(0, OTP_LENGTH).forEach((char, i) => {
-      newOtp[i] = char;
-    });
+    paste
+      .split("")
+      .slice(0, OTP_LENGTH)
+      .forEach((char, i) => {
+        newOtp[i] = char;
+      });
     setOtp(newOtp);
     otpRefs.current[Math.min(paste.length - 1, OTP_LENGTH - 1)]?.focus();
   };
@@ -93,8 +135,8 @@ export default function Login() {
     }
 
     try {
-       const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
-        console.log("base" + baseurl);
+      const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
+      console.log("base" + baseurl);
       const response = await axios.post(`${baseurl}/send-otp`, { email });
       setMailOtp(String(response.data.data));
       setShowForgotOverlay(true);
@@ -148,8 +190,8 @@ export default function Login() {
     }
 
     try {
-              const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
-        console.log("base" + baseurl);
+      const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
+      console.log("base" + baseurl);
       await axios.post(`${baseurl}/reset-password`, {
         email,
         newPassword,
@@ -189,7 +231,7 @@ export default function Login() {
           Login to InvoiceEase
         </h2>
         <p className="text-center text-blue-800 text-sm mb-4">
-          Welcome back! Generate invoices with ease.
+          Welcome back! Generate and store invoices.
         </p>
 
         {error && (
@@ -205,7 +247,10 @@ export default function Login() {
 
         <div className="space-y-4">
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900" size={18} />
+            <Mail
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900"
+              size={18}
+            />
             <input
               type="email"
               value={email}
@@ -217,7 +262,10 @@ export default function Login() {
           </div>
 
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900" size={18} />
+            <Lock
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900"
+              size={18}
+            />
             <input
               type="password"
               value={password}
@@ -238,10 +286,16 @@ export default function Login() {
           <motion.button
             onClick={handleSubmit}
             whileTap={{ scale: 0.98 }}
-            whileHover={{ scale: 1.02 }}
-            className="w-full bg-blue-900 hover:bg-blue-800 text-white py-2 rounded shadow-md"
+            whileHover={!loading ? { scale: 1.02 } : {}}
+            disabled={loading}
+            className={`w-full flex items-center justify-center py-2 rounded shadow-md transition-all duration-300 ${
+              loading
+                ? "bg-blue-400 cursor-not-allowed"
+                : "bg-blue-900 hover:bg-blue-800 text-white"
+            }`}
           >
-            Login
+            {loading && <Spinner />}
+            {loading ? "Logging in..." : "Login"}
           </motion.button>
 
           <p className="text-center text-blue-800 text-sm">
@@ -286,7 +340,10 @@ export default function Login() {
                 <span className="font-mono text-blue-700">{email}</span>
               </h3>
 
-              <div className="flex justify-center gap-2 mb-4" onPaste={handlePaste}>
+              <div
+                className="flex justify-center gap-2 mb-4"
+                onPaste={handlePaste}
+              >
                 {otp.map((digit, idx) => (
                   <input
                     key={idx}
@@ -362,7 +419,8 @@ export default function Login() {
                 }}
                 aria-label="Close"
               >
-               Sessio<X size={24} />
+                Sessio
+                <X size={24} />
               </button>
 
               <motion.div
@@ -383,7 +441,10 @@ export default function Login() {
 
               <div className="space-y-4">
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900" size={18} />
+                  <Lock
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900"
+                    size={18}
+                  />
                   <input
                     type="password"
                     value={newPassword}
@@ -395,7 +456,10 @@ export default function Login() {
                 </div>
 
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900" size={18} />
+                  <Lock
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-900"
+                    size={18}
+                  />
                   <input
                     type="password"
                     value={confirmPassword}
@@ -433,3 +497,25 @@ export default function Login() {
     </div>
   );
 }
+const Spinner = () => (
+  <svg
+    className="animate-spin h-5 w-5 text-white mr-2"
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <circle
+      className="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      strokeWidth="4"
+    ></circle>
+    <path
+      className="opacity-75"
+      fill="currentColor"
+      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+    ></path>
+  </svg>
+);
