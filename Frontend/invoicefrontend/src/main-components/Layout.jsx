@@ -4,29 +4,31 @@ import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { AuthContext } from "../../Context/AuthContext";
+
 const Layout = () => {
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef(null);
+  const { user, login } = useContext(AuthContext);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
-  const { user, login } = useContext(AuthContext);
+
   // ✅ Wake up the server and check auth
   useEffect(() => {
-    const baseurl = 'https://invoiceease-backend.onrender.com';
+    const baseurl = "https://invoiceease-backend.onrender.com";
 
     const pingAndAuth = async () => {
       try {
+        console.log("🌐 Pinging server...");
         await fetch(baseurl); // Wake up Render server
 
         const res = await fetch(`${baseurl}/api/auth/me`, {
-          credentials: "include", 
+          credentials: "include",
         });
 
         if (res.ok) {
           const data = await res.json();
           console.log("✅ Logged in as:", data.user);
-          login(data.user.email)
-
+          login(data.user.email); // Make sure your login function supports this
         } else {
           console.log("⚠️ Not logged in");
         }
@@ -34,8 +36,10 @@ const Layout = () => {
         console.log("⚠️ Server may be waking up or offline:", error.message);
       }
     };
-// Fire and forget
-  }, []);
+
+    // ✅ Invoke the function
+    pingAndAuth();
+  }, [login]);
 
   // 🔁 Close sidebar when clicking outside (mobile only)
   useEffect(() => {
@@ -48,6 +52,7 @@ const Layout = () => {
         setIsOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
@@ -58,11 +63,11 @@ const Layout = () => {
       <Sidebar isOpen={isOpen} sidebarRef={sidebarRef} />
 
       {/* Right side: Navbar + Content */}
-      <div className="flex flex-col flex-1 h-screen md:w-32 sm:w-32">
+      <div className="flex flex-col flex-1 h-screen">
         <Navbar toggleSidebar={toggleSidebar} />
 
         {/* Main content area */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 lg:ml-54 mt-12 md:ml-46 sm:ml-46">
+        <main className="flex-1 overflow-y-auto bg-gray-50 mt-12 lg:ml-56 md:ml-48 sm:ml-48">
           <Outlet />
         </main>
       </div>
