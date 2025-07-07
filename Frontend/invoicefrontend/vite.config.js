@@ -6,6 +6,6 @@ export default defineConfig({
   base: '/',
     server: {
     host: true,        // Accept connections from LAN
-    port: 3000,        // Optional: you can set specific port
+    port: 5173,        // Optional: you can set specific port
   }
 });

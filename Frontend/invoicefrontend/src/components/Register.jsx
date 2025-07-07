@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { User, Phone, Mail, Lock, ShieldCheck, FileText } from "lucide-react";
 import axios from "axios";
 import { useContext } from "react";
+import { motion } from "framer-motion";
 import { AuthContext } from "../../Context/AuthContext";
 
 export default function Register() {
@@ -13,7 +13,7 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [status, setStatus] = useState("");
+  const [setStatus] = useState("");
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -44,7 +44,6 @@ export default function Register() {
         alert("✅ Registration Successful!");
         setStatus(201);
         setError("");
-        sessionStorage.setItem("user data", JSON.stringify({ email }));
         login(email);
         navigate("/templates");
       }

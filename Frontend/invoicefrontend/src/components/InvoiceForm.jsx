@@ -1,7 +1,6 @@
 import { InvoiceContext } from "../../Context/InvoiceContext";
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { storeInvoice } from "../../utils/storeInvoice";
 
 const InvoiceForm = () => {
@@ -85,8 +84,6 @@ const InvoiceForm = () => {
       return;
     }
     //store invoice in db if user is logged in
-    const userdata = sessionStorage.getItem("user data");
-    if (userdata) {
       const dataStoringInvoice = {
         firmInfo,
         customerInfo,
@@ -98,7 +95,6 @@ const InvoiceForm = () => {
         throw new Error("problem occured while storing invoice in db");
       }
       console.log("invoice stored in db successfully");
-    }
     console.log(items);
     navigate("/bill");
   };

@@ -43,13 +43,6 @@ export default function Sidebar({ isOpen, sidebarRef }) {
             const baseurl = import.meta.env.VITE_BACKEND_PROTECTED_URL;
         console.log("base" + baseurl);
     try {
-      const userdataRaw = sessionStorage.getItem("user data");
-      if (userdataRaw) {
-        const deleteFromLocalStorage = sessionStorage.removeItem("user data");
-        console.log(
-          "deleted email from local storage : " + deleteFromLocalStorage
-        );
-      }
       const result = await axios.post(
         `${baseurl}/logout`,
         {},

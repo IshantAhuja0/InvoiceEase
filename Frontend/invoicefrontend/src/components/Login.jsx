@@ -1,10 +1,10 @@
 import React, { useContext, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Mail, Lock, FileText, X, CheckCircle } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
-
+import { motion } from "framer-motion";
 export default function Login() {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -22,39 +22,6 @@ export default function Login() {
   const otpRefs = useRef([]);
   const [loading, setLoading] = useState(false);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setError("");
-
-  //   if (!email || !password) {
-  //     setError("Please fill in both email and password fields.");
-  //     return;
-  //   }
-
-  //   try {
-  //     const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
-  //       console.log("base" + baseurl);
-  //     const response = await axios.post(
-  //       `${baseurl}/login`,
-  //       { email, password },
-  //       { withCredentials: true }
-  //     );
-  //     sessionStorage.setItem("user data", JSON.stringify({ email }));
-  //     login(email);
-  //     navigate("/invoices");
-  //   } catch (error) {
-  //     const message = error.response?.data?.message;
-  //     setError(
-  //       error.response
-  //         ? error.response.status === 401
-  //           ? "Invalid email address."
-  //           : error.response.status === 402
-  //           ? "Incorrect password."
-  //           : message || "Authentication failed."
-  //         : "Server connection error. Please try again."
-  //     );
-  //   }
-  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return; // prevent double-clicks or rapid submissions
@@ -70,21 +37,20 @@ export default function Login() {
 
     try {
       const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
-      const response = await axios.post(
+      const Response = await axios.post(
         `${baseurl}/login`,
         { email, password },
         { withCredentials: true }
       );
-      sessionStorage.setItem("user data", JSON.stringify({ email }));
       login(email);
       navigate("/invoices");
     } catch (error) {
-      const message = error.response?.data?.message;
+      const message = error.Response?.data?.message;
       setError(
-        error.response
-          ? error.response.status === 401
+        error.Response
+          ? error.Response.status === 401
             ? "Invalid email address."
-            : error.response.status === 402
+            : error.Response.status === 402
             ? "Incorrect password."
             : message || "Authentication failed."
           : "Server connection error. Please try again."
