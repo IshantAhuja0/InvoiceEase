@@ -24,6 +24,9 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api', route);
+app.use('/api/healthcheck', (req,res)=>{
+  res.status(200).send("server is running fine. Health 100%")
+});
 app.use('/api/protected', verifyJWT,authRoute);
 
 // Connect DB and start server
