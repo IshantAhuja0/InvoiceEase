@@ -12,13 +12,13 @@ const Layout = () => {
   const { user, login } = useContext(AuthContext);
   // ✅ Wake up the server and check auth
   useEffect(() => {
-    const baseurl = import.meta.env.VITE_BACKEND_BASE_URL;
+    const baseurl = 'https://invoiceease-backend.onrender.com';
 
     const pingAndAuth = async () => {
       try {
         await fetch(baseurl); // Wake up Render server
 
-        const res = await fetch(`${baseurl}/auth/me`, {
+        const res = await fetch(`${baseurl}/api/auth/me`, {
           credentials: "include", 
         });
 
