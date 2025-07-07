@@ -1,96 +1,74 @@
-import { connectDB, getDB } from "../Mongo/mongo.js"
+import { getDB } from "../Mongo/mongo.js"
 import mongodb from "mongodb";
 const ObjectId = mongodb.ObjectId;
 const storeInvoice = async (req, res) => {
+  const session = (await getDB()).client.startSession(); // Start Mongo session
+
   try {
-    let { firmInfo, customerInfo, invoiceMeta, items, authorEmail } = req.body
-    console.log(authorEmail)
-    // Optional: Validate required fields
-    if (!firmInfo?.firmEmail || !customerInfo?.customerEmail || !items || items.length === 0) {
-      return res.status(400).send({
-        status: 400,
-        message: "Missing required invoice fields.",
-      });
-    }
+    let { firmInfo, customerInfo, invoiceMeta, items } = req.body || {};
+    let authorEmail = req.user.email;
 
-    let db = await getDB()
-    let collection = db.collection('invoices')
-
-    const result = await collection.insertOne({
-      authorEmail, // Store email for linkage
-      firmInfo,
-      customerInfo,
-      invoiceMeta,
-      items,
-      createdAt: new Date()         // Store timestamp
-    });
-    if (!result.acknowledged) {
-      return res.status(200).send({
-        status: 200,
-        message: "Invoice stored in DB successfully",
-        invoiceId: result.insertedId,
-      });
-
-    }
-    res.send({
-      status: 200,
-      message: "Invoice store in db successful",
-      result: result,
-      insertedId: result.insertedId
-    })
-  }
-  catch (err) {
-    console.log("error catched while storing incoive to db in StroreInvoice.js line23")
-    return res.status(500).send({
-      status: 500,
-      message: "Internal server error while storing invoice",
-      error: err.message
-    });
-  }
-}
-const updateInvoiceArray = async (req, res) => {
-  try {
-    const email = req.params.email; // ✅ or req.body.email if needed
-    const { invoiceId } = req.body;
-
-    if (!email || !invoiceId) {
-      return res.status(401).json({
-        status: 401,
-        message: "Email or invoiceId not provided. Invalid credentials",
-      });
+    if (!firmInfo?.firmEmail || !customerInfo?.customerEmail || !items?.length) {
+      return res.status(400).send({ status: 400, message: "Missing required invoice fields." });
     }
 
     const db = await getDB();
-    const collection = db.collection("register_users");
+    const invoices = db.collection('invoices');
+    const users = db.collection('register_users');
 
-    const result = await collection.updateOne(
-      { email: email },
-      { $addToSet: { invoices: invoiceId } } // prevent duplicates
-    );
+    let insertedInvoiceId;
 
-    if (result.matchedCount === 0) {
-      return res.status(404).json({
-        status: 404,
-        message: "User not found",
-      });
-    }
+    await session.withTransaction(async () => {
+      // 1. Insert invoice
+      const result = await invoices.insertOne({
+        authorEmail,
+        firmInfo,
+        customerInfo,
+        invoiceMeta,
+        items,
+        createdAt: new Date()
+      }, { session });
 
-    return res.status(200).json({
+      if (!result.acknowledged) {
+        throw new Error("Invoice insert failed");
+      }
+
+      insertedInvoiceId = result.insertedId;
+
+      // 2. Update user
+      const resultUser = await users.updateOne(
+        { email: authorEmail },
+        { $addToSet: { invoices: insertedInvoiceId } },
+        { session }
+      );
+
+      if (resultUser.matchedCount === 0) {
+        throw new Error("User not found");
+      }
+    });
+
+    // If we reach here, everything in transaction succeeded
+    return res.status(200).send({
       status: 200,
-      message: "Invoices array updated successfully",
+      message: "Invoice stored and user updated successfully",
+      invoiceId: insertedInvoiceId,
     });
-  } catch (error) {
-    console.error("Error updating invoice:", error);
-    return res.status(500).json({
+
+  } catch (err) {
+    return res.status(500).send({
       status: 500,
-      message: "Internal server error while updating invoices array",
+      message: "Failed to store invoice",
+      error: err.message
     });
+  } finally {
+    await session.endSession(); // Always end the session
   }
 };
+
+
 const getInvoiceArray = async (req, res) => {
   try {
-    const email = req.params.email
-    console.log(email)
+    const email = req.user.email
     if (!email) return res.status(401).json({ status: 401, message: "failed to fetch invoice array ,email not provided. " })
 
     const db = await getDB()
@@ -116,11 +94,9 @@ const objectIdToInvoices = async (ids) => {
     const collection = db.collection("invoices")
     //this just converts id of string to actual datatype of id and now we have objectIds that can direclty be searched in db.
     const objectIds = ids.map((id) => new ObjectId(id));
-    console.log("1")
     //  Perform a single query with `$in` (1 DB call)
     //objectIds is a array that contains actual object id that can be searched as it is.
     const results = await collection.find({ _id: { $in: objectIds } }).toArray();
-    console.log("2")
 
     return results
   } catch (error) {
@@ -141,7 +117,7 @@ const getInvoice = async (req, res) => {
     return res.status(500).json({ status: 500, message: "failed to fetch invoice . Internal server error" })
   }
 }
-  
+
 const deleteInvoice = async (req, res) => {
   try {
     const { authorEmail } = req.body;
@@ -178,4 +154,4 @@ const deleteInvoice = async (req, res) => {
 };
 
 
-export { getInvoiceArray, storeInvoice, updateInvoiceArray, getInvoice, deleteInvoice }
+export { getInvoiceArray, storeInvoice, getInvoice, deleteInvoice }

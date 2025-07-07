@@ -9,7 +9,7 @@ import authRoute from "./Routes/authRoute.js";
 import verifyJWT from "./Middlewares/verifyJWT.js";
 const app = express();
 app.use(cors({
-  origin: 'http://localhost:5173', 
+  origin: ['https://invoice-ease-iota.vercel.app','http://localhost:5173'],
   credentials: true               
 }));
 app.use(express.json());
@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
   res.send("✅ Server is up");
 });
 
-app.use('/', route);
+app.use('/api', route);
 app.use('/api/protected', verifyJWT,authRoute);
 
 // Connect DB and start server
