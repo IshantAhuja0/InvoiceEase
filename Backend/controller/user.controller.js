@@ -8,7 +8,7 @@ const login = async (req, res) => {
     let db = await getDB();
     let collection = db.collection('register_users');
     let result = await collection.findOne({ email });
-console.log("Login attempt with:", email, password);
+    console.log("Login attempt with:", email, password);
 
     if (!result) {
       console.log('User not found!');
@@ -39,6 +39,7 @@ console.log("Login attempt with:", email, password);
       httpOnly: true,
       secure: true,
       sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000,
     }
     return res.status(200)
       .cookie("accessToken", token, options)
@@ -48,7 +49,7 @@ console.log("Login attempt with:", email, password);
         userId: result._id,
         token
       });
-      
+
   } catch (error) {
     console.log('Error occurred while logging in user:', error);
     res.status(500).send({ status: 500, message: 'Login failed', error: error.message });
@@ -126,6 +127,7 @@ const registerUser = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000,
     }
     return res.status(201)
       .cookie("accessToken", token, options)
@@ -178,12 +180,12 @@ const resetPassword = async (req, res) => {
     const db = await getDB();
     const collection = db.collection("register_users");
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    console.log(email,newPassword)
+    console.log(email, newPassword)
     const result = await collection.updateOne(
       { email },
       { $set: { password: hashedPassword } },
     );
-    console.log("result : "+result)
+    console.log("result : " + result)
     if (result.matchedCount === 0) {
       return res.status(401).json({
         status: 401,
@@ -203,5 +205,15 @@ const resetPassword = async (req, res) => {
     });
   }
 };
+const authCookie = async (req, res) => {
+const token=req.cookies.accessToken || req.headers['authorization']?.split(' ')[1];
 
-export { login, checkAlreadyLoginForRegister, registerUser, logoutUser, resetPassword };
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ authenticated: true, user: payload });
+  } catch (err) {
+    res.status(401).json({ authenticated: false });
+  }
+}
+
+export { login, checkAlreadyLoginForRegister, registerUser, logoutUser, resetPassword,authCookie };
