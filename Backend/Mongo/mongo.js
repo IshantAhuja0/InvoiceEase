@@ -1,8 +1,7 @@
 import { MongoClient } from 'mongodb';
-// import dotenv from "dotenv"
-// dotenv.config()
-// const url = process.env.MONGODB_URI;
-const url = "mongodb+srv://first:first@democluster.dsslt6c.mongodb.net/testdb?retryWrites=true&w=majority";
+import dotenv from "dotenv"
+dotenv.config()
+const url = process.env.MONGODB_URI;
 const dbName = 'invoice_backend';
 
 let client;

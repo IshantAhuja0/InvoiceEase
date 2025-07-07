@@ -10,8 +10,7 @@ const token=req.cookies.accessToken || req.headers['authorization']?.split(' ')[
     });
   }
   try {
-    const decodeToken = jwt.verify(token, "secretKeyInvoice")
-    // const decodeToken = jwt.verify(token, process.env.JWT_SECRET)
+    const decodeToken = jwt.verify(token, process.env.JWT_SECRET)
     req.user = decodeToken
     console.log("passed from jwt verification  by middleware")
     next()
