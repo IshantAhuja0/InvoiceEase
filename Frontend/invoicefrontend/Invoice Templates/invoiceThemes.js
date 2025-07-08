@@ -91,7 +91,7 @@ export const invoiceThemes = [
   },
   {
     name: "Ocean Breeze",
-    src: "https://www.invoiceowl.com/wp-content/uploads/2022/11/steel-fencing.jpg",
+    src: "https://i.postimg.cc/q7TzFvVv/Screenshot-2025-07-09-003134.png",
     primaryColor: "#1E88E5",
     textColor: "#1F2937",
     accentColor: "#60A5FA",

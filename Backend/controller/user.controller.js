@@ -10,10 +10,10 @@ const login = async (req, res) => {
     let result = await collection.findOne({ email });
     console.log("Login attempt with:", email, password);
 
-    if (!result) {
+    if (!result) {  
       console.log('User not found!');
-      return res.status(401).json({
-        status: 401,
+      return res.status(404).json({
+        status: 404,
         message: "User not found . Invalid email !"
       })
     }
@@ -21,8 +21,8 @@ const login = async (req, res) => {
     let matchPassword = await bcrypt.compare(password, result.password);
     if (!matchPassword) {
       console.log("Password doesn't match");
-      return res.status(402).json({
-        status: 402,
+      return res.status(401).json({
+        status: 401 ,
         message: "Password doesn't matched!"
       })
     }
@@ -63,10 +63,10 @@ const checkAlreadyLoginForRegister = async ({ email }) => {
     let result = await collection.findOne({ email });
 
     if (!result) {
-      return { status: 404, message: 'User not found, all set for register' };
+      return true;
     }
 
-    return { status: 200, message: 'User exists', userId: result._id };
+    return false;
   } catch (error) {
     console.log('Error occurred in checkLoginForRegister:', error);
     return { status: 500, message: 'Internal server error' };
@@ -87,7 +87,7 @@ const registerUser = async (req, res) => {
     // Check if user is already registered
     const checkLogin = await checkAlreadyLoginForRegister({ email });
 
-    if (checkLogin.status !== 404) {
+    if (!checkLogin) {
       return res.status(409).send({
         status: 409,
         message: 'User is already registered'
@@ -206,7 +206,7 @@ const resetPassword = async (req, res) => {
   }
 };
 const authCookie = async (req, res) => {
-const token=req.cookies.accessToken || req.headers['authorization']?.split(' ')[1];
+  const token = req.cookies.accessToken || req.headers['authorization']?.split(' ')[1];
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
@@ -216,4 +216,4 @@ const token=req.cookies.accessToken || req.headers['authorization']?.split(' ')[
   }
 }
 
-export { login, checkAlreadyLoginForRegister, registerUser, logoutUser, resetPassword,authCookie };
+export { login, checkAlreadyLoginForRegister, registerUser, logoutUser, resetPassword, authCookie };

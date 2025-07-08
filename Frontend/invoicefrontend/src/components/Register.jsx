@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Phone, Mail, Lock, ShieldCheck, FileText } from "lucide-react";
+import { User, Phone, Mail, Lock, ShieldCheck, FileText,Eye,EyeOff } from "lucide-react";
 import axios from "axios";
 import { useContext } from "react";
 import { motion } from "framer-motion";
@@ -13,9 +13,11 @@ export default function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const [setStatus] = useState("");
+  const [status,setStatus] = useState("");
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -154,35 +156,50 @@ export default function Register() {
               />
             </div>
 
-            <div className="relative">
-              <Lock
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-900"
-                size={18}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full pl-10 pr-4 py-2 border border-blue-300 rounded-lg bg-gradient-to-r from-white to-blue-50 text-sm placeholder-blue-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+ <div className="relative">
+  <Lock
+    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-900"
+    size={18}
+  />
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Password"
+    className="w-full pl-10 pr-10 py-2 border border-blue-300 rounded-lg bg-gradient-to-r from-white to-blue-50 text-sm placeholder-blue-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+  />
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-900 hover:text-blue-700"
+  >
+    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+  </button>
+</div>
 
-            <div className="relative">
-              <ShieldCheck
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-900"
-                size={18}
-              />
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                className="w-full pl-10 pr-4 py-2 border border-blue-300 rounded-lg bg-gradient-to-r from-white to-blue-50 text-sm placeholder-blue-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
+<div className="relative">
+  <ShieldCheck
+    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-900"
+    size={18}
+  />
+  <input
+    type={showConfirmPassword ? "text" : "password"}
+    placeholder="Confirm Password"
+    className="w-full pl-10 pr-10 py-2 border border-blue-300 rounded-lg bg-gradient-to-r from-white to-blue-50 text-sm placeholder-blue-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-900 transition"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    required
+  />
+  <button
+    type="button"
+    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-900 hover:text-blue-700"
+  >
+    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+  </button>
+</div>
+
 
             <motion.button
               type="submit"

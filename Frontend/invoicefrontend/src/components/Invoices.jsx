@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import debounce from "lodash/debounce";
 import { Search, Eye, Plus, DollarSign, FileText, Trash } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 // Mock data for testing if API is unavailable
@@ -34,12 +35,14 @@ const mockInvoices = [
 
 const Invoices = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
   const [statusFilter, setStatusFilter] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [invoices, setInvoices] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  
+
   // Function to determine status color
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -57,16 +60,24 @@ const Invoices = () => {
   };
 
   // Filter invoices based on search term and status
+  const normalizedSearch = debouncedSearchTerm.trim().toLowerCase();
+  const normalizedStatus = statusFilter.toLowerCase();
+
   const filteredInvoices = invoices.filter((invoice) => {
     const firmName = invoice.customerInfo?.customerFirm?.toLowerCase() || "";
     const invoiceNo =
       invoice.invoiceMeta?.invoiceNo?.toString().toLowerCase() || "";
-    const status = invoice.status?.toLowerCase() || "";
+    const paymentStatus =
+      invoice.invoiceMeta?.paymentStatus?.toLowerCase() || "";
+
     const matchesSearch =
-      firmName.includes(searchTerm.toLowerCase()) ||
-      invoiceNo.includes(searchTerm.toLowerCase());
+      normalizedSearch === "" ||
+      firmName.includes(normalizedSearch) ||
+      invoiceNo.includes(normalizedSearch);
+
     const matchesStatus =
-      statusFilter === "all" || status === statusFilter.toLowerCase();
+      normalizedStatus === "all" || paymentStatus === normalizedStatus;
+
     return matchesSearch && matchesStatus;
   });
 
@@ -117,6 +128,18 @@ const Invoices = () => {
     { label: "Actions", align: "text-right" },
   ];
 
+  useEffect(() => {
+    const handler = debounce(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 700); // 700ms debounce delay
+
+    handler(); // Call the debounced function
+
+    return () => {
+      handler.cancel(); // Cancel debounce on cleanup
+    };
+  }, [searchTerm]);
+
   // Fetch invoices from API
   useEffect(() => {
     async function fetchData() {
@@ -130,7 +153,7 @@ const Invoices = () => {
           {},
           { withCredentials: true, timeout: 10000 }
         );
-        
+
         if (response.data && Array.isArray(response.data.invoices)) {
           console.log("Fetched invoices:", response.data.invoices);
           setInvoices(response.data.invoices);
@@ -156,24 +179,20 @@ const Invoices = () => {
     const viewInvoice = filteredInvoices.filter(
       (invoice) => invoice._id === invoiceId
     );
-    console.log(viewInvoice[0])
-    localStorage.setItem("savedInvoice",JSON.stringify(viewInvoice[0]))
-    navigate("/bill",{state:{useLocal:true}})
+    localStorage.setItem("savedInvoice", JSON.stringify(viewInvoice[0]));
+    navigate("/bill", { state: { useLocal: true } });
   };
-  
+
   // Handle Delete Invoice
   const handleDeleteInvoice = async (invoiceId) => {
     try {
       const baseurl = import.meta.env.VITE_BACKEND_PROTECTED_URL;
       console.log(invoiceId);
-      await axios.delete(
-        `${baseurl}/deleteinvoice`,
-        {
-          data: {},
-          withCredentials: true,
-        }
-      );
-      
+      await axios.delete(`${baseurl}/deleteinvoice/${invoiceId}`, {
+        data: {},
+        withCredentials: true,
+      });
+
       setInvoices(invoices.filter((invoice) => invoice._id !== invoiceId));
       console.log(`Invoice ${invoiceId} deleted successfully`);
     } catch (error) {
@@ -266,20 +285,32 @@ const Invoices = () => {
         {/* Filters and Search */}
         <div className="bg-white rounded-lg shadow-sm border mb-4 sm:mb-6">
           <div className="p-4 sm:p-6">
-            <div className="flex w-full gap-4">
-              <div className="relative flex-[8.7]">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              {/* Search Input with Clear Button */}
+              <div className="relative w-full sm:flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
                 <input
                   type="text"
                   placeholder="Search invoices..."
-                  className="w-full pl-8 sm:pl-10 pr-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
+                  className="w-full pl-8 pr-10 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
+                {searchTerm && (
+                  <button
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-700 focus:outline-none text-xl sm:text-2xl"
+                    onClick={() => setSearchTerm("")}
+                    aria-label="Clear search"
+                  >
+                    &times;
+                  </button>
+                )}
               </div>
-              <div className="flex-[1.3]">
+
+              {/* Status Filter */}
+              <div className="w-full sm:w-52">
                 <select
-                  className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
+                  className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                 >

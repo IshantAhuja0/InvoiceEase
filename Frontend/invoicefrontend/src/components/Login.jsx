@@ -1,6 +1,14 @@
 import React, { useContext, useState, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
-import { Mail, Lock, FileText, X, CheckCircle } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  FileText,
+  X,
+  CheckCircle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthContext";
@@ -21,6 +29,7 @@ export default function Login() {
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const otpRefs = useRef([]);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,9 +57,9 @@ export default function Login() {
       const message = error.Response?.data?.message;
       setError(
         error.Response
-          ? error.Response.status === 401
+          ? error.Response.status === 404
             ? "Invalid email address."
-            : error.Response.status === 402
+            : error.Response.status === 401
             ? "Incorrect password."
             : message || "Authentication failed."
           : "Server connection error. Please try again."
@@ -233,13 +242,21 @@ export default function Login() {
               size={18}
             />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full pl-10 pr-4 py-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
+              className="w-full pl-10 pr-10 py-2 rounded border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-900 bg-white"
               aria-label="Password"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-900 hover:text-blue-700 focus:outline-none"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
 
           <p

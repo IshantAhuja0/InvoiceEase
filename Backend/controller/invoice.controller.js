@@ -65,7 +65,6 @@ const storeInvoice = async (req, res) => {
   }
 };
 
-
 const getInvoiceArray = async (req, res) => {
   try {
     const email = req.user.email
@@ -120,7 +119,7 @@ const getInvoice = async (req, res) => {
 
 const deleteInvoice = async (req, res) => {
   try {
-    const { authorEmail } = req.body;
+    const  authorEmail  = req.user.email;
     const invoiceId = req.params.id;
 
     if (!invoiceId) return res.status(401).json({ status: 401, message: "invoice id is required to delete invoice" });
