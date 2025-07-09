@@ -54,17 +54,12 @@ export default function Login() {
       login(email);
       navigate("/invoices");
     } catch (error) {
-      const message = error.Response?.data?.message;
-      setError(
-        error.Response
-          ? error.Response.status === 404
-            ? "Invalid email address."
-            : error.Response.status === 401
-            ? "Incorrect password."
-            : message || "Authentication failed."
-          : "Server connection error. Please try again."
-      );
-    } finally {
+  const status = error.response?.status;
+  const message = error.response?.data?.message;
+      setError(message);
+      throw new Error(message)
+    }
+     finally {
       setLoading(false); // reset loading after success or failure
     }
   };
