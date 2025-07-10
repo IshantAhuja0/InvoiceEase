@@ -3,11 +3,13 @@ import React from "react";
 const formatDate = (dateStr) =>
   dateStr ? new Date(dateStr).toLocaleDateString("en-IN", { dateStyle: "long" }) : "";
 
-const DocumentTemplate = ({ type, ...data }) => {
+const DocumentTemplate = ( props ) => {
+  // Destructure safely with default values
+const {type, data}=props
   const {
-    logo,
-    companyName,
-    candidateName,
+    logo = null,
+    companyName = "Your Company",
+    candidateName = "Candidate",
     position,
     startDate,
     endDate,
@@ -21,23 +23,21 @@ const DocumentTemplate = ({ type, ...data }) => {
     hrEmail,
     responseDeadline,
     mentorName,
-    letterContent,
+    letterContent = "",
   } = data;
-
+console.log(data)
   const renderMetaDetails = () => {
     switch (type) {
       case "offer-letter-form":
         return (
           <>
-            <p><strong>Position:</strong> {position}</p>
-            <p><strong>Start Date:</strong> {formatDate(startDate)}</p>
-            <p><strong>Salary:</strong> ₹{salary}</p>
-            <p><strong>Location:</strong> {location}</p>
+            {position && <p><strong>Position:</strong> {position}</p>}
+            {startDate && <p><strong>Start Date:</strong> {formatDate(startDate)}</p>}
+            {salary && <p><strong>Salary:</strong> ₹{salary}</p>}
+            {location && <p><strong>Location:</strong> {location}</p>}
             {benefits && <p><strong>Benefits:</strong> {benefits}</p>}
             {responseDeadline && (
-              <p>
-                <strong>Response Deadline:</strong> {formatDate(responseDeadline)}
-              </p>
+              <p><strong>Response Deadline:</strong> {formatDate(responseDeadline)}</p>
             )}
           </>
         );
@@ -45,10 +45,10 @@ const DocumentTemplate = ({ type, ...data }) => {
       case "internship-letter-form":
         return (
           <>
-            <p><strong>Internship Role:</strong> {position}</p>
-            <p><strong>Start Date:</strong> {formatDate(startDate)}</p>
-            <p><strong>Duration:</strong> {duration}</p>
-            <p><strong>Location:</strong> {location}</p>
+            {position && <p><strong>Internship Role:</strong> {position}</p>}
+            {startDate && <p><strong>Start Date:</strong> {formatDate(startDate)}</p>}
+            {duration && <p><strong>Duration:</strong> {duration}</p>}
+            {location && <p><strong>Location:</strong> {location}</p>}
             {mentorName && <p><strong>Mentor:</strong> {mentorName}</p>}
           </>
         );
@@ -56,20 +56,20 @@ const DocumentTemplate = ({ type, ...data }) => {
       case "experience-letter-form":
         return (
           <>
-            <p><strong>Position:</strong> {position}</p>
-            <p><strong>From:</strong> {formatDate(startDate)}</p>
-            <p><strong>To:</strong> {formatDate(endDate)}</p>
-            <p><strong>Location:</strong> {location}</p>
+            {position && <p><strong>Position:</strong> {position}</p>}
+            {startDate && <p><strong>From:</strong> {formatDate(startDate)}</p>}
+            {endDate && <p><strong>To:</strong> {formatDate(endDate)}</p>}
+            {location && <p><strong>Location:</strong> {location}</p>}
           </>
         );
 
       case "promotion-letter-form":
         return (
           <>
-            <p><strong>Position:</strong> {position}</p>
-            <p><strong>Promotion Date:</strong> {formatDate(promotionDate)}</p>
-            <p><strong>New Salary:</strong> ₹{newSalary}</p>
-            <p><strong>Location:</strong> {location}</p>
+            {position && <p><strong>Position:</strong> {position}</p>}
+            {promotionDate && <p><strong>Promotion Date:</strong> {formatDate(promotionDate)}</p>}
+            {newSalary && <p><strong>New Salary:</strong> ₹{newSalary}</p>}
+            {location && <p><strong>Location:</strong> {location}</p>}
           </>
         );
 
@@ -104,9 +104,10 @@ const DocumentTemplate = ({ type, ...data }) => {
             </p>
           )}
         </div>
+
         {logo && (
           <img
-            src={URL.createObjectURL(logo)}
+            src={typeof logo === "string" ? logo : URL.createObjectURL(logo)}
             alt="Company Logo"
             className="h-14 w-auto object-contain"
           />
@@ -130,7 +131,9 @@ const DocumentTemplate = ({ type, ...data }) => {
 
       {/* Letter Content */}
       <div className="whitespace-pre-wrap text-[15px] leading-7 tracking-normal text-gray-700 mb-8">
-        {letterContent}
+        {letterContent || (
+          <span className="italic text-gray-400">No letter content provided.</span>
+        )}
       </div>
 
       {/* Footer */}

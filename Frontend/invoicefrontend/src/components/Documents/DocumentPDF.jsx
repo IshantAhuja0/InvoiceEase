@@ -20,9 +20,9 @@ const GlobalStyles = createGlobalStyle`
 `;
 
 const DocumentPDF = () => {
+  const location=useLocation()
   const {  formData,type } = location.state||{};
-  // const {name}=formData
-  const data={type,formData}
+  console.log(formData,type)
   const componentRef = useRef();
 
   const handleDownloadPDF = async () => {
@@ -77,7 +77,7 @@ const DocumentPDF = () => {
         </Header>
 
         <DocumentContainer ref={componentRef}>
-        <DocumentTemplate data />
+        <DocumentTemplate type={type} data={formData} />
         </DocumentContainer>
 
         <ButtonContainer>

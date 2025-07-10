@@ -126,9 +126,11 @@ export default function DocumentForm() {
   );
   const handleSubmit=(e)=>{
   e.preventDefault();
+console.log(formData,type)
     navigate(`/documents/preview`,{
       state:{formData,type}
     })
+    // localStorage.setItem("docData", JSON.stringify({ formData, type }));
   }
   
 
