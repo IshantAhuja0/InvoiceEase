@@ -14,6 +14,8 @@ import AuthRequired from "../Auth/AuthRequired";
 import DocumentTypeSelection from "./components/Documents/DocumentTypeSelection.jsx";
 import NotFound from "./components/Generic/NotFound"; // 🔥 Import NotFound
 import DocumentForm from "./components/Documents/DocumentForm.jsx";
+import DocumentTemplate from "./components/Documents/DocumentTemplate.jsx";
+import DocumentPDF from "./components/Documents/DocumentPdf.jsx";
 
 function App() {
   return (
@@ -30,6 +32,7 @@ function App() {
           <Route path="invoices" element={<AuthRequired><Invoices /></AuthRequired>} />
           //documents routes
           <Route path="documents" element={<DocumentTypeSelection />} />
+          <Route path="documents/preview" element={<DocumentPDF />} />
           <Route path="documents/:type" element={<DocumentForm />} />
           <Route path="*" element={<NotFound />} /> {/* ✅ Catch-all route */}
         </Route>

@@ -262,6 +262,7 @@ const InvoiceTemplate = ({ local }) => {
                   <th style={{ padding: "0.5rem", textAlign: "left" }}>Line Total</th>
                 </tr>
               </thead>
+
               <tbody>
                 {items.map((item, index) => (
                   <motion.tr

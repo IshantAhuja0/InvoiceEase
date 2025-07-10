@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { Navigate, useParams,useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Bot, Pencil, Loader2, Hourglass } from "lucide-react";
@@ -80,6 +80,7 @@ export default function DocumentForm() {
   const [formData, setFormData] = useState(initialState);
   const [mode, setMode] = useState("manual");
   const [loading, setLoading] = useState(false);
+  const navigate=useNavigate()
 
   if (!formMeta) {
     return (
@@ -114,6 +115,7 @@ export default function DocumentForm() {
       </label>
 
       <input
+      required
         type={type}
         name={name}
         value={formData[name] || ""}
@@ -122,6 +124,13 @@ export default function DocumentForm() {
       />
     </div>
   );
+  const handleSubmit=(e)=>{
+  e.preventDefault();
+    navigate(`/documents/preview`,{
+      state:{formData,type}
+    })
+  }
+  
 
   return (
     <motion.div
@@ -134,24 +143,23 @@ export default function DocumentForm() {
       </h1>
       <p className="text-gray-600 mb-6">{formMeta.description}</p>
 
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit}>
         {renderInput("companyName", "Company Name")}
 
-<div className="mb-4">
-  <label className="block text-base text-gray-700 font-semibold mb-2">
-    Company Logo
-  </label>
-  <div className="relative w-full flex items-center justify-between px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm">
-    <input
-      type="file"
-      name="logo"
-      accept="image/*"
-      onChange={handleChange}
-      className="w-full text-sm text-gray-600 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-    />
-  </div>
-</div>
-
+        <div className="mb-4">
+          <label className="block text-base text-gray-700 font-semibold mb-2">
+            Company Logo
+          </label>
+          <div className="relative w-full flex items-center justify-between px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm">
+            <input
+              type="file"
+              name="logo"
+              accept="image/*"
+              onChange={handleChange}
+              className="w-full text-sm text-gray-600 file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            />
+          </div>
+        </div>
 
         {formMeta.fields.map((field) => {
           const labelMap = {
@@ -178,43 +186,41 @@ export default function DocumentForm() {
           );
         })}
 
-<div className="flex gap-4 mt-6">
-  {/* Manual Mode Button */}
-  <button
-    type="button"
-    onClick={() => setMode("manual")}
-    className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition font-medium ${
-      mode === "manual"
-        ? "bg-blue-900 text-white"
-        : "bg-white text-gray-800 hover:bg-gray-100"
-    }`}
-  >
-    <Pencil className="h-4 w-4" />
-    Write Manually
-  </button>
+        <div className="flex gap-4 mt-6">
+          {/* Manual Mode Button */}
+          <button
+            type="button"
+            onClick={() => setMode("manual")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm transition font-medium ${
+              mode === "manual"
+                ? "bg-blue-900 text-white"
+                : "bg-white text-gray-800 hover:bg-gray-100"
+            }`}
+          >
+            <Pencil className="h-4 w-4" />
+            Write Manually
+          </button>
 
-  {/* AI Mode Button */}
-  <button
-    type="button"
-    onClick={() => {
-      setMode("ai");
-      handleGenerateAIContent();
-    }}
-    className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold shadow-md border transition-transform transform ${
-      mode === "ai"
-        ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white"
-        : "bg-white text-purple-700 border-purple-400 hover:bg-purple-50"
-    } hover:scale-105 hover:shadow-lg`}
-  >
-    <Bot className="h-5 w-5" />
-    Generate with AI
-    <span className="ml-1 px-2 py-0.5 text-[10px] font-bold bg-white text-purple-700 rounded-full border border-purple-300">
-      AI
-    </span>
-  </button>
-</div>
-
-
+          {/* AI Mode Button */}
+          <button
+            type="button"
+            onClick={() => {
+              setMode("ai");
+              handleGenerateAIContent();
+            }}
+            className={`flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold shadow-md border transition-transform transform ${
+              mode === "ai"
+                ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white"
+                : "bg-white text-purple-700 border-purple-400 hover:bg-purple-50"
+            } hover:scale-105 hover:shadow-lg`}
+          >
+            <Bot className="h-5 w-5" />
+            Generate with AI
+            <span className="ml-1 px-2 py-0.5 text-[10px] font-bold bg-white text-purple-700 rounded-full border border-purple-300">
+              AI
+            </span>
+          </button>
+        </div>
 
         {loading && (
           <motion.div
@@ -271,8 +277,7 @@ export default function DocumentForm() {
 
         <div className="pt-6">
           <button
-            type="button"
-            onClick={() => console.log("Submit, Preview, or Generate PDF")}
+            type="submit"
             className="w-full bg-blue-900 text-white py-2 px-6 rounded-lg font-semibold hover:bg-blue-800 transition"
           >
             Generate Document
