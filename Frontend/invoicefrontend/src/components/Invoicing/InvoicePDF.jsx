@@ -2,11 +2,11 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import InvoiceTemplate from "../../Invoice Templates/InvoiceTemplate";
+import InvoiceTemplate from "../../../Invoice Templates/InvoiceTemplate";
 import { ArrowDownTrayIcon, PhotoIcon } from "@heroicons/react/24/solid";
-import { invoiceThemes } from "../../Invoice Templates/invoiceThemes";
+import { invoiceThemes } from "../../../Invoice Templates/invoiceThemes";
 import styled, { createGlobalStyle } from "styled-components";
-import TemplateContext from "../../Context/TemplateContext";
+import TemplateContext from "../../../Context/TemplateContext";
 
 // Global print fix
 const GlobalStyles = createGlobalStyle`

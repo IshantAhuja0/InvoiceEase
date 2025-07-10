@@ -1,17 +1,19 @@
 import React from "react";
 import "./App.css";
 import "flowbite";
-import InvoicePDF from "./components/InvoicePDF";
+import InvoicePDF from "./components/Invoicing/InvoicePDF.jsx"
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./main-components/Layout";
-import Templates from "./components/Templates";
-import InvoiceForm from "./components/InvoiceForm";
-import Home from "./components/Home";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import Invoices from "./components/Invoices";
+import Layout from "./components/Generic/Layout";
+import Templates from "./components/Invoicing/Templates.jsx";
+import InvoiceForm from "./components/Invoicing/InvoiceForm";
+import Home from "./components/Generic/Home";
+import Login from "./components/Generic/Login";
+import Register from "./components/Generic/Register";
+import Invoices from "./components/Invoicing/Invoices";
 import AuthRequired from "../Auth/AuthRequired";
-import NotFound from "./components/NotFound"; // 🔥 Import NotFound
+import DocumentTypeSelection from "./components/Documents/DocumentTypeSelection.jsx";
+import NotFound from "./components/Generic/NotFound"; // 🔥 Import NotFound
+import DocumentForm from "./components/Documents/DocumentForm.jsx";
 
 function App() {
   return (
@@ -26,6 +28,9 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="invoices" element={<AuthRequired><Invoices /></AuthRequired>} />
+          //documents routes
+          <Route path="documents" element={<DocumentTypeSelection />} />
+          <Route path="documents/:type" element={<DocumentForm />} />
           <Route path="*" element={<NotFound />} /> {/* ✅ Catch-all route */}
         </Route>
       </Routes>

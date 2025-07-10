@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../Context/AuthContext";
+import { AuthContext } from "../../../Context/AuthContext";
 import { motion } from "framer-motion";
 export default function Login() {
   const { login } = useContext(AuthContext);

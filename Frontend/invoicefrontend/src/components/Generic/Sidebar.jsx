@@ -6,8 +6,9 @@ import {
   LogIn,
   LogOut,
   UserPlus,
+  FileInput
 } from "lucide-react";
-import { AuthContext } from "../../Context/AuthContext";
+import { AuthContext } from "../../../Context/AuthContext";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +20,7 @@ export default function Sidebar({ isOpen, sidebarRef }) {
     { name: "Home", icon: Home, path: "" },
     { name: "Invoices", icon: FileText, path: "invoices" },
     { name: "Templates", icon: LayoutTemplate, path: "templates" },
+    { name: "Documents", icon: FileInput, path: "documents" },
   ];
 
   const guestMenu = [

@@ -4,7 +4,7 @@ import { User, Phone, Mail, Lock, ShieldCheck, FileText,Eye,EyeOff } from "lucid
 import axios from "axios";
 import { useContext } from "react";
 import { motion } from "framer-motion";
-import { AuthContext } from "../../Context/AuthContext";
+import { AuthContext } from "../../../Context/AuthContext";
 
 export default function Register() {
   const [name, setName] = useState("");

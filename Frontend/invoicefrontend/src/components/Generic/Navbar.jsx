@@ -3,7 +3,7 @@ import { LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useContext } from "react";
-import { AuthContext } from "../../Context/AuthContext";
+import { AuthContext } from "../../../Context/AuthContext";
 export default function Navbar({ toggleSidebar }) {
   const {user,logout}=useContext(AuthContext)
   const [dropdownOpen, setDropdownOpen] = useState(false);

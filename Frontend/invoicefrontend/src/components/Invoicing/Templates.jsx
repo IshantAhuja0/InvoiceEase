@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import TemplateContext from "../../Context/TemplateContext";
-import { invoiceThemes } from "../../Invoice Templates/invoiceThemes";
+import TemplateContext from "../../../Context/TemplateContext";
+import { invoiceThemes } from "../../../Invoice Templates/invoiceThemes";
 import { IoMdAddCircle } from "react-icons/io";
 
 const containerVariants = {

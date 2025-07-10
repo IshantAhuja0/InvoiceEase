@@ -1,7 +1,7 @@
-import { InvoiceContext } from "../../Context/InvoiceContext";
+import { InvoiceContext } from "../../../Context/InvoiceContext";
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { storeInvoice } from "../../utils/storeInvoice";
+import { storeInvoice } from "../../../utils/storeInvoice";
 import { motion } from "framer-motion";
 const InvoiceForm = () => {
   const {

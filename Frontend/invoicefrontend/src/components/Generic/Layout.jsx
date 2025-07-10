@@ -1,9 +1,9 @@
 // Layout.jsx
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { Outlet } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
-import { AuthContext } from "../../Context/AuthContext";
+import Navbar from "./Navbar.jsx"
+import Sidebar from "./Sidebar";
+import { AuthContext } from "../../../Context/AuthContext";
 
 const Layout = () => {
   const [isOpen, setIsOpen] = useState(false);
