@@ -1,10 +1,14 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { Download, Image } from "lucide-react";
+import { Download, Image, CheckCircle2 } from "lucide-react";
 import styled, { createGlobalStyle } from "styled-components";
+import { motion, AnimatePresence } from "framer-motion";
 import DocumentTemplate from "./DocumentTemplate";
+import { Themes } from "../Generic/Themes";
+import ThemeSwatchSelector from "../Generic/ThemeSwatchSelector";
+
 
 const GlobalStyles = createGlobalStyle`
   @media print {
@@ -18,38 +22,65 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 `;
+const generateFileName = (prefix, ext) => {
+  const date = new Date();
+  // Format: YYYYMMDD_HHMM
+  const formattedDate = `${date.getFullYear()}${(date.getMonth()+1)
+    .toString().padStart(2, "0")}${date.getDate()
+    .toString().padStart(2, "0")}_${date.getHours()
+    .toString().padStart(2, "0")}${date.getMinutes()
+    .toString().padStart(2, "0")}`;
+  return `${prefix}_${formattedDate}.${ext}`;
+};
 
 const DocumentPDF = () => {
-  const location=useLocation()
-  const {  formData,type } = location.state||{};
-  console.log(formData,type)
+  const location = useLocation();
+  const { formData, type } = location.state || {};
   const componentRef = useRef();
+  const [selectedTheme, setSelectedTheme] = useState(Themes[0]);
 
-  const handleDownloadPDF = async () => {
-    const element = componentRef.current;
-    if (!element) return;
+  // State for popup notification
+  const [popup, setPopup] = useState({ visible: false, message: "", icon: null });
 
-    const originalStyle = element.style.cssText;
-    element.style.width = "794px";
-    element.style.minHeight = "1123px";
-    element.style.padding = "2rem";
-
-    const canvas = await html2canvas(element, {
-      scale: 2.5,
-      useCORS: true,
-      backgroundColor: "#fff",
-    });
-
-    const imgData = canvas.toDataURL("image/jpeg", 1.0);
-    const pdf = new jsPDF("p", "px", "a4");
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
-    pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, imgHeight);
-    pdf.save("document.pdf");
-
-    element.style.cssText = originalStyle;
+  // Show popup for 2 seconds
+  const showPopup = (message, icon) => {
+    setPopup({ visible: true, message, icon });
+    setTimeout(() => setPopup({ visible: false, message: "", icon: null }), 2000);
   };
+
+const handleDownloadPDF = async () => {
+  const src = componentRef.current;
+  if (!src) return;
+
+  const clone = src.cloneNode(true);
+  Object.assign(clone.style, {
+    position: "absolute",
+    top: "-9999px",
+    left: "-9999px",
+    width: "794px",
+    minHeight: "1123px",
+    padding: "2rem",
+    background: "#fff",
+    overflow: "hidden",
+  });
+  document.body.appendChild(clone);
+
+  const canvas = await html2canvas(clone, {
+    scale: 2.5,
+    useCORS: true,
+    backgroundColor: "#fff",
+  });
+  document.body.removeChild(clone);
+
+  const imgData = canvas.toDataURL("image/jpeg", 1.0);
+  const pdf = new jsPDF("p", "px", "a4");
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+  pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, imgHeight);
+  pdf.save(generateFileName("document", "pdf"));
+
+  showPopup("PDF downloaded!", <Download className="icon" />);
+};
 
   const handleSaveImage = async () => {
     const element = componentRef.current;
@@ -64,20 +95,28 @@ const DocumentPDF = () => {
     const image = canvas.toDataURL("image/jpeg", 1.0);
     const link = document.createElement("a");
     link.href = image;
-    link.download = "document.jpg";
+  link.download = generateFileName("document", "jpg");
     link.click();
+
+    showPopup("Image downloaded!", <Image className="icon" />);
   };
 
   return (
     <>
       <GlobalStyles />
       <Container>
-        <Header>
-          <Title>Document Preview</Title>
-        </Header>
+<Header>
+  <Title>Document Preview</Title>
+  <ThemeSwatchSelector
+    themes={Themes}
+    currentTheme={selectedTheme}
+    setTheme={setSelectedTheme}
+  />
+</Header>
 
         <DocumentContainer ref={componentRef}>
-        <DocumentTemplate type={type} data={formData} />
+<DocumentTemplate type={type} data={formData} theme={selectedTheme} />
+
         </DocumentContainer>
 
         <ButtonContainer>
@@ -88,6 +127,22 @@ const DocumentPDF = () => {
             <Image className="icon" /> Save as Image
           </Button>
         </ButtonContainer>
+
+        {/* Popup Notification */}
+        <AnimatePresence>
+          {popup.visible && (
+            <PopupWrapper
+              as={motion.div}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <PopupIcon>{popup.icon}</PopupIcon>
+              <span>{popup.message}</span>
+            </PopupWrapper>
+          )}
+        </AnimatePresence>
       </Container>
     </>
   );
@@ -95,27 +150,20 @@ const DocumentPDF = () => {
 
 export default DocumentPDF;
 
+// Styled Components (including popup styles)
 const Container = styled.div`
   padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
   background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
   min-height: 100vh;
-`;
-
-const Header = styled.div`
+  position: relative;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 2rem;
-`;
+  overflow-x: hidden;
 
-const Title = styled.h1`
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #111827;
+  @media (max-width: 640px) {
+    padding: 0rem;
+  }
 `;
 
 const DocumentContainer = styled.div`
@@ -126,19 +174,39 @@ const DocumentContainer = styled.div`
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 794px;
-  margin: 0 auto;
-  transition: transform 0.3s ease;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
-  &:hover {
-    transform: translateY(-4px);
-  }
-
-  @media print {
-    width: 794px;
-    min-height: 1123px;
+  @media (max-width: 640px) {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
     box-shadow: none;
-    padding: 2rem;
+    margin: 0.8rem;
+    width: 100%;
   }
+`;
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 794px;
+  margin-bottom: 2rem;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    margin: 0.4rem;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+`;
+
+const Title = styled.h1`
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
 `;
 
 const ButtonContainer = styled.div`
@@ -147,6 +215,12 @@ const ButtonContainer = styled.div`
   justify-content: center;
   gap: 1rem;
   flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
 `;
 
 const Button = styled.button`
@@ -173,3 +247,44 @@ const Button = styled.button`
     transform: translateY(-2px);
   }
 `;
+
+const PopupWrapper = styled.div`
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2563eb;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  z-index: 9999;
+  max-width: 90vw;
+  text-align: center;
+  pointer-events: none;
+  box-sizing: border-box;
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    padding: 0.5rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+`;
+
+const PopupIcon = styled.div`
+  display: flex;
+  align-items: center;
+
+  .icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke-width: 2.5;
+  }
+`;
+
+

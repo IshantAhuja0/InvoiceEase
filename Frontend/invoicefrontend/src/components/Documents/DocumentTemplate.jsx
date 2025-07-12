@@ -1,11 +1,11 @@
 import React from "react";
 
 const formatDate = (dateStr) =>
-  dateStr ? new Date(dateStr).toLocaleDateString("en-IN", { dateStyle: "long" }) : "";
+  dateStr
+    ? new Date(dateStr).toLocaleDateString("en-IN", { dateStyle: "long" })
+    : "";
 
-const DocumentTemplate = ( props ) => {
-  // Destructure safely with default values
-const {type, data}=props
+const DocumentTemplate = ({ type, data, theme = {} }) => {
   const {
     logo = null,
     companyName = "Your Company",
@@ -25,7 +25,18 @@ const {type, data}=props
     mentorName,
     letterContent = "",
   } = data;
-console.log(data)
+
+
+  const {
+    backgroundColor = "#ffffff",
+    textColor = "#1f2937",
+    primaryColor = "#1e3a8a",
+    accentColor = "#4338ca",
+    fontFamily = "sans-serif",
+    borderColor = "#e5e7eb",
+    mutedColor = "#9ca3af",
+  } = theme;
+
   const renderMetaDetails = () => {
     switch (type) {
       case "offer-letter-form":
@@ -91,16 +102,43 @@ console.log(data)
   return (
     <div
       id="document"
-      className="max-w-4xl mx-auto bg-white p-6 md:p-10 border rounded-xl shadow-lg text-gray-800 font-sans"
+      style={{
+        maxWidth: "850px",
+        margin: "0 auto",
+        backgroundColor,
+        padding: "1.5rem",
+        border: `1px solid ${borderColor}`,
+        borderRadius: "1rem",
+        boxShadow: "0 6px 12px rgba(0, 0, 0, 0.15)",
+        color: textColor,
+        fontFamily,
+        fontSize: "14px",
+        lineHeight: "1.7",
+      }}
     >
       {/* Header */}
-      <div className="flex justify-between items-center border-b pb-4 mb-6">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          paddingBottom: "1rem",
+          marginBottom: "1.5rem",
+          borderBottom: `1px solid ${borderColor}`,
+        }}
+      >
         <div>
-          <h1 className="text-xl font-bold text-blue-900">{companyName}</h1>
-          {location && <p className="text-sm text-gray-600">{location}</p>}
+          <h1 style={{ fontSize: "1.25rem", fontWeight: "bold", color: primaryColor }}>
+            {companyName}
+          </h1>
+          {location && (
+            <p style={{ fontSize: "13px", color: mutedColor }}>{location}</p>
+          )}
           {hrEmail && (
-            <p className="text-sm text-blue-600">
-              <a href={`mailto:${hrEmail}`}>{hrEmail}</a>
+            <p style={{ fontSize: "13px", color: accentColor }}>
+              <a href={`mailto:${hrEmail}`} style={{ textDecoration: "none", color: accentColor }}>
+                {hrEmail}
+              </a>
             </p>
           )}
         </div>
@@ -109,41 +147,78 @@ console.log(data)
           <img
             src={typeof logo === "string" ? logo : URL.createObjectURL(logo)}
             alt="Company Logo"
-            className="h-14 w-auto object-contain"
+            style={{
+              height: "56px",
+              width: "auto",
+              objectFit: "contain",
+            }}
           />
         )}
       </div>
 
       {/* Title */}
-      <h2 className="text-lg font-semibold text-center mb-4 text-indigo-700 uppercase tracking-wide">
+      <h2
+        style={{
+          fontSize: "16px",
+          fontWeight: "600",
+          textAlign: "center",
+          marginBottom: "1.25rem",
+          color: accentColor,
+          textTransform: "uppercase",
+          letterSpacing: "1px",
+        }}
+      >
         {getLetterTitle()}
       </h2>
 
       {/* Candidate */}
       {candidateName && (
-        <p className="text-sm mb-6">
-          <span className="font-semibold">To:</span> {candidateName}
+        <p style={{ marginBottom: "1.5rem", fontSize: "13px" }}>
+          <span style={{ fontWeight: "600" }}>To:</span> {candidateName}
         </p>
       )}
 
-      {/* Meta Info */}
-      <div className="mb-6 text-sm text-gray-800 space-y-1">{renderMetaDetails()}</div>
+      {/* Meta Details */}
+      <div style={{ marginBottom: "1.5rem", fontSize: "14px" }}>
+        {renderMetaDetails()}
+      </div>
 
-      {/* Letter Content */}
-      <div className="whitespace-pre-wrap text-[15px] leading-7 tracking-normal text-gray-700 mb-8">
-        {letterContent || (
-          <span className="italic text-gray-400">No letter content provided.</span>
+      {/* Letter Body */}
+      <div
+        style={{
+          whiteSpace: "pre-wrap",
+          fontSize: "15px",
+          lineHeight: "1.75",
+          color: textColor,
+          marginBottom: "2rem",
+        }}
+      >
+        {letterContent ? (
+          letterContent
+        ) : (
+          <span style={{ fontStyle: "italic", color: mutedColor }}>
+            No letter content provided.
+          </span>
         )}
       </div>
 
       {/* Footer */}
-      <div className="mt-8 text-sm">
+      <div style={{ fontSize: "14px", marginTop: "2rem" }}>
         <p>Regards,</p>
-        <p className="font-semibold">{hrName || "HR Department"}</p>
+        <p style={{ fontWeight: "600" }}>{hrName || "HR Department"}</p>
         <p>{companyName}</p>
       </div>
 
-      <p className="text-xs text-center mt-10 text-gray-400 border-t pt-4">
+      <p
+        style={{
+          fontSize: "12px",
+          textAlign: "center",
+          marginTop: "2.5rem",
+          color: mutedColor,
+          borderTop: `1px solid ${borderColor}`,
+          paddingTop: "1rem",
+        }}
+      >
         This is a system-generated document. No signature is required.
       </p>
     </div>

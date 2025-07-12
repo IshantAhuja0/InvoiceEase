@@ -2,11 +2,12 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import InvoiceTemplate from "../../../Invoice Templates/InvoiceTemplate";
+import InvoiceTemplate from "./InvoiceTemplate";
 import { ArrowDownTrayIcon, PhotoIcon } from "@heroicons/react/24/solid";
-import { invoiceThemes } from "../../../Invoice Templates/invoiceThemes";
+import { Themes } from "../Generic/Themes";
 import styled, { createGlobalStyle } from "styled-components";
 import TemplateContext from "../../../Context/TemplateContext";
+import ThemeSwatchSelector from "../Generic/ThemeSwatchSelector";
 
 // Global print fix
 const GlobalStyles = createGlobalStyle`
@@ -39,10 +40,10 @@ const InvoicePDF = () => {
     setTemplate: () => {},
   };
 
-  const defaultThemeKey = Object.keys(invoiceThemes)[0];
+  const defaultThemeKey = Object.keys(Themes)[0];
   const [selectedKey, setSelectedKey] = useState(template?.id || defaultThemeKey);
   const [selectedTheme, setSelectedTheme] = useState(
-    template?.theme || invoiceThemes[defaultThemeKey]
+    template?.theme || Themes[defaultThemeKey]
   );
 
   const componentRef = useRef();
@@ -99,7 +100,6 @@ const handleDownloadPDF = async () => {
   }
 };
 
-
   const handleSaveImage = async () => {
     try {
       const element = componentRef.current;
@@ -126,7 +126,7 @@ const handleDownloadPDF = async () => {
 
   const handleThemeChange = (e) => {
     const newKey = e.target.value;
-    const newTheme = invoiceThemes[newKey];
+    const newTheme = Themes[newKey];
     setSelectedKey(newKey);
     setSelectedTheme(newTheme);
     setTemplate({ theme: newTheme, id: newKey });
@@ -137,20 +137,12 @@ const handleDownloadPDF = async () => {
       <GlobalStyles />
       <Container>
         <Header>
-          <Title>Generate Invoice</Title>
-          <ThemeSelector>
-            <Label htmlFor="theme-select">Choose Theme:</Label>
-            <SelectWrapper>
-              <Select id="theme-select" value={selectedKey} onChange={handleThemeChange}>
-                {Object.keys(invoiceThemes).map((key) => (
-                  <option key={key} value={key}>
-                    {invoiceThemes[key].name}
-                  </option>
-                ))}
-              </Select>
-              <SelectIcon />
-            </SelectWrapper>
-          </ThemeSelector>
+            <Title>Document Preview</Title>
+  <ThemeSwatchSelector
+    themes={Themes}
+    currentTheme={selectedTheme}
+    setTheme={setSelectedTheme}
+  />
         </Header>
 
         <InvoiceContainer ref={componentRef} theme={selectedTheme}>

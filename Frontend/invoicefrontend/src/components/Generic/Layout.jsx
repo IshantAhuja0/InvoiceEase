@@ -1,20 +1,21 @@
 // Layout.jsx
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { Outlet } from "react-router-dom";
-import Navbar from "./Navbar.jsx"
+import Navbar from "./Navbar.jsx";
 import Sidebar from "./Sidebar";
-import { AuthContext } from "../../../Context/AuthContext";
+import { login } from "../../../Redux/Features/Auth/authSlice.js";
+import { useDispatch } from "react-redux";
 
 const Layout = () => {
   const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef(null);
-  const { user, login } = useContext(AuthContext);
+  const dispatch = useDispatch();
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   // ✅ Wake up the server and check auth
   useEffect(() => {
-    const baseurl = "https://invoiceease-backend.onrender.com";
+    const baseurl = import.meta.env.VITE_BACKEND_URL;
 
     const pingAndAuth = async () => {
       try {
@@ -27,8 +28,15 @@ const Layout = () => {
 
         if (res.ok) {
           const data = await res.json();
-          console.log("✅ Logged in as:", data.user);
-          login(data.user.email); // Make sure your login function supports this
+        console.log(data)
+          if (data?.user?.email ) {
+          // if (data?.user?.email && data?.user?.token) {
+
+            //todo correct this when backend get fixed
+            dispatch(login({ email: data.user.email, jwt: "data.user.token" }));
+          } else {
+            console.warn("⚠️ Incomplete user data:", data);
+          }
         } else {
           console.log("⚠️ Not logged in");
         }
@@ -39,7 +47,7 @@ const Layout = () => {
 
     // ✅ Invoke the function
     pingAndAuth();
-  }, [login]);
+  });
 
   // 🔁 Close sidebar when clicking outside (mobile only)
   useEffect(() => {

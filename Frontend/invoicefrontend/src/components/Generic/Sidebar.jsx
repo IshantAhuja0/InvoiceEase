@@ -12,14 +12,17 @@ import { AuthContext } from "../../../Context/AuthContext";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../../Redux/Features/Auth/authSlice";
 export default function Sidebar({ isOpen, sidebarRef }) {
-  const { user, logout } = useContext(AuthContext);
+  // const { user, logout } = useContext(AuthContext);
+   const user=useSelector(state=>state.auth.user)
   const IconLogout = LogOut;
+  const dispatch=useDispatch()
 
   const baseMenu = [
     { name: "Home", icon: Home, path: "" },
-    { name: "Invoices", icon: FileText, path: "invoices" },
-    { name: "Templates", icon: LayoutTemplate, path: "templates" },
+    { name: "Invoices", icon: FileText, path: "invoice" },
     { name: "Documents", icon: FileInput, path: "documents" },
   ];
 
@@ -36,7 +39,7 @@ export default function Sidebar({ isOpen, sidebarRef }) {
   //     onClick: logout,
   //   },
   // ];
-  const menuItems = user
+  const menuItems = user.email.trim().length!==0
     ? [...baseMenu]
     : [...baseMenu, ...guestMenu];
 
@@ -53,7 +56,7 @@ export default function Sidebar({ isOpen, sidebarRef }) {
         }
       );
       console.log("logging out")
-      logout()
+      dispatch(logout())
       if (result.status === 200) {
         console.log(result.data.message);
         navigate("/")
@@ -95,7 +98,7 @@ export default function Sidebar({ isOpen, sidebarRef }) {
               </li>
             );
           })}
-          {user && (
+          {user.email.trim().length!==0 && (
             <li onClick={handleLogout}>
               <div className="flex items-center gap-3 p-2 rounded-lg transition-colors duration-300 text-white hover:bg-white/10">
                 <IconLogout className="w-5 h-5 shrink-0" />
