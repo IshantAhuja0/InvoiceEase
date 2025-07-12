@@ -210,7 +210,7 @@ const authCookie = async (req, res) => {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({ authenticated: true, user: payload });
+    res.json({ authenticated: true, user: {...payload,token} });
   } catch (err) {
     res.status(401).json({ authenticated: false });
   }

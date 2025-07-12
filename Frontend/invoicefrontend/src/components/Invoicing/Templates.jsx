@@ -1,8 +1,8 @@
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import TemplateContext from "../../Context/TemplateContext";
-import { invoiceThemes } from "../../Invoice Templates/invoiceThemes";
+import TemplateContext from "../../../Context/TemplateContext";
+import { Themes } from "../Generic/Themes";
 import { IoMdAddCircle } from "react-icons/io";
 
 const containerVariants = {
@@ -44,7 +44,7 @@ const Templates = () => {
   const { setTemplate, isTemplateReady, setIsTemplateReady } = useContext(TemplateContext);
 
   const handleSelect = (key) => {
-    const selected = invoiceThemes[key];
+    const selected = Themes[key];
     console.log(selected)
     if (!selected) return;
 
@@ -80,8 +80,8 @@ const Templates = () => {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           <AnimatePresence>
-            {Object.keys(invoiceThemes).map((key, index) => {
-              const { name, src } = invoiceThemes[key];
+            {Object.keys(Themes).map((key, index) => {
+              const { name, src } = Themes[key];
               return (
                 <motion.div
                   key={key}

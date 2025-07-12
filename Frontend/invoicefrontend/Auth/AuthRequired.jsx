@@ -2,14 +2,15 @@ import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSelector } from "react-redux";
 export default function AuthRequired({ children }) {
-  const { user } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
 
+  const user=useSelector(state=>state.auth.user)
   useEffect(() => {
-    if (!user) {
+    if (user.email.trim().length===0) {
       setShowPopup(true);
       document.body.style.overflow = "hidden";
     } else {
@@ -27,10 +28,10 @@ export default function AuthRequired({ children }) {
   };
 
   const handleClose = () => {
-    navigate("/");
+    navigate("/invoice");
   };
 
-  if (!user) {
+  if (user.email.trim().length===0) {
     return (
       <AnimatePresence>
         <motion.div
@@ -87,7 +88,7 @@ export default function AuthRequired({ children }) {
               onClick={handleClose}
               className="mt-6 text-sm text-gray-500 hover:text-blue-900 transition underline"
             >
-              Cancel & Return to Home
+              Cancel & Return Back
             </button>
           </motion.div>
         </motion.div>

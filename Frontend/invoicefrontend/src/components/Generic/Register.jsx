@@ -4,7 +4,9 @@ import { User, Phone, Mail, Lock, ShieldCheck, FileText,Eye,EyeOff } from "lucid
 import axios from "axios";
 import { useContext } from "react";
 import { motion } from "framer-motion";
-import { AuthContext } from "../../Context/AuthContext";
+import { AuthContext } from "../../../Context/AuthContext";
+import { login } from "../../../Redux/Features/Auth/authSlice";
+import { useDispatch } from "react-redux";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -14,7 +16,8 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [status,setStatus] = useState("");
-  const { login } = useContext(AuthContext);
+  const dispatch=useDispatch()
+  // const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 const [showPassword, setShowPassword] = useState(false);
 const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -46,7 +49,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
         alert("✅ Registration Successful!");
         setStatus(201);
         setError("");
-        login(email);
+        dispatch(login({email,jwt:res.data.token}))
         navigate("/templates");
       }
     } catch (err) {

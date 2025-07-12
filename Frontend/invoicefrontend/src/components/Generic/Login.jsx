@@ -1,5 +1,6 @@
 import React, { useContext, useState, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
+import {useDispatch} from "react-redux"
 import {
   Mail,
   Lock,
@@ -9,12 +10,13 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import { login } from "../../../Redux/Features/Auth/authSlice";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../Context/AuthContext";
+import { AuthContext } from "../../../Context/AuthContext";
 import { motion } from "framer-motion";
 export default function Login() {
-  const { login } = useContext(AuthContext);
+  // const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +32,7 @@ export default function Login() {
   const otpRefs = useRef([]);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
+  const dispatch=useDispatch()
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return; // prevent double-clicks or rapid submissions
@@ -51,7 +53,7 @@ export default function Login() {
         { email, password },
         { withCredentials: true }
       );
-      login(email);
+      dispatch(login({email:email,jwt:Response.data.token}))
       navigate("/invoices");
     } catch (error) {
   const status = error.response?.status;

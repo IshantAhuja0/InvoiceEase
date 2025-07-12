@@ -1,16 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useContext } from "react";
-import { AuthContext } from "../../Context/AuthContext";
+import { logout } from "../../../Redux/Features/Auth/authSlice";
+import { useDispatch } from "react-redux";
 export default function Navbar({ toggleSidebar }) {
-  const {user,logout}=useContext(AuthContext)
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const[authorName,setAuthorName]=useState("InvoiceEase User")
+  const dispatch=useDispatch()
+  let user=useSelector(state=>state.auth.user)
+  user=user.email.trim()
 useEffect(() => {
-  user?setAuthorName(user.split('@')[0]):setAuthorName("InvoiceEase User");
+  user.length!==0?setAuthorName(user.split('@')[0]):setAuthorName("InvoiceEase User");
 }, [user]);
 
   // Close dropdown when clicking outside
@@ -37,7 +40,7 @@ useEffect(() => {
         }
       );
       console.log("logging out")
-      logout()
+      dispatch(logout())
       if (result.status === 200) {
         console.log(result.data.message);
         setDropdownOpen(false);

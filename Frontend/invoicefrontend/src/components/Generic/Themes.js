@@ -1,4 +1,4 @@
-export const invoiceThemes = [
+export const Themes = [
   {
     name: "Classic Blue",
     src: "https://th.bing.com/th/id/OIP.00j06LqDnG9abzHdfUgScwHaJl?r=0&rs=1&pid=ImgDetMain",
