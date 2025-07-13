@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// Utility to calculate end date from start date and duration in months
 function calculateEndDate(startDate, durationInMonths) {
   if (!startDate || !durationInMonths) return "";
   const start = new Date(startDate);
@@ -12,13 +13,15 @@ function calculateEndDate(startDate, durationInMonths) {
 }
 
 export async function aiResponse(formData, type) {
-  const key = import.meta.env.VITE_OPEN_AI_KEY;
+  const apiKey = import.meta.env.VITE_OPEN_AI_KEY;
   let prompt = "";
 
   switch (type) {
     case "offer-letter-form":
       prompt = `
-Write a formal offer letter body using the following details. Only return the main body content, without any headings, dates, signatures, or contact details. Do not use placeholders or fabricate any info.
+Write a formal offer letter body using the following details. Only return the main body content, without any headings, dates, signatures, or contact details. Do not use placeholders or fabricate any info. The response must be fully complete, professional, and suitable for direct use. 
+
+Keep the length between 150 and 250 words.
 
 - Candidate Name: ${formData.candidateName}
 - Position: ${formData.position}
@@ -30,13 +33,15 @@ Write a formal offer letter body using the following details. Only return the ma
 - HR Name: ${formData.hrName}
 - Response Deadline: ${formData.responseDeadline}
 
-Use a formal and welcoming tone. Keep it concise and under 250 words.
+Use a formal and welcoming tone.
 `;
       break;
 
     case "internship-letter-form":
       prompt = `
-Write a professional internship confirmation letter body using the following data. Exclude headings, dates, and contact info. Do not invent any content or use placeholders.
+Write a professional internship confirmation letter body using the following data. Exclude headings, dates, and contact info. Do not invent any content or use placeholders. The letter should be complete and ready to use.
+
+Keep the length between 120 and 180 words.
 
 - Candidate Name: ${formData.candidateName}
 - Position: ${formData.position}
@@ -53,7 +58,9 @@ Tone should be warm and professional. Mention duration, remote status (if implie
 
     case "experience-letter-form":
       prompt = `
-Generate the core body of a professional experience letter using the following information. Exclude all headers, footers, and signatures. Do not make up responsibilities or use placeholders.
+Generate the core body of a professional experience letter using the following information. Exclude all headers, footers, and signatures. Do not make up responsibilities or use placeholders. The content must be complete and ready to use.
+
+Keep it brief and focused on tenure and professionalism. Length should be between 100 and 150 words. End with a respectful closing line.
 
 - Candidate Name: ${formData.candidateName}
 - Position: ${formData.position}
@@ -61,14 +68,14 @@ Generate the core body of a professional experience letter using the following i
 - End Date: ${formData.endDate}
 - Company Name: ${formData.companyName}
 - Location: ${formData.location}
-
-Keep it brief and focused on tenure and professionalism. End with a respectful closing line.
 `;
       break;
 
     case "promotion-letter-form":
       prompt = `
-Write a promotion letter body paragraph using this data. Only return the core content without headers or footers. Avoid placeholders or assumptions.
+Write a promotion letter body paragraph using this data. Only return the core content without headers or footers. Avoid placeholders or assumptions. The text should be complete, formal, and appreciative.
+
+Keep it between 100 and 160 words. Mention growth, trust, and expectations briefly.
 
 - Candidate Name: ${formData.candidateName}
 - New Position: ${formData.position}
@@ -76,8 +83,6 @@ Write a promotion letter body paragraph using this data. Only return the core co
 - New Salary: ${formData.newSalary}
 - Company Name: ${formData.companyName}
 - Location: ${formData.location}
-
-Use a formal, appreciative tone. Mention growth, trust, and expectations briefly.
 `;
       break;
 
@@ -87,9 +92,9 @@ Use a formal, appreciative tone. Mention growth, trust, and expectations briefly
 
   try {
     const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
+      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
       {
-        model: "deepseek/deepseek-r1:free",
+        model: "gemini-2.0-flash",
         messages: [
           {
             role: "user",
@@ -100,16 +105,14 @@ Use a formal, appreciative tone. Mention growth, trust, and expectations briefly
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${key}`,
-          "HTTP-Referer": "http://localhost:5173",
-          "X-Title": "InvoiceEase-DocumentGen",
+          Authorization: `Bearer ${apiKey}`,
         },
       }
     );
 
     return response.data.choices?.[0]?.message?.content || "⚠️ AI did not return content.";
   } catch (error) {
-    console.error("AI generation error:", error);
+    console.error("AI generation error:", error.response?.data || error.message);
     return "⚠️ Failed to generate content.";
   }
 }
