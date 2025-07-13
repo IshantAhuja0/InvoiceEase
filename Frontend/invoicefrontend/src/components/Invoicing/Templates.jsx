@@ -1,43 +1,8 @@
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import TemplateContext from "../../../Context/TemplateContext";
 import { Themes } from "../Generic/Themes";
-import { IoMdAddCircle } from "react-icons/io";
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 50, scale: 0.95 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut",
-    },
-  },
-};
-
-const hoverVariants = {
-  hover: {
-    scale: 1.03,
-    boxShadow: "0 12px 24px rgba(0, 0, 0, 0.15)",
-    transition: {
-      duration: 0.3,
-      ease: "easeOut",
-    },
-  },
-};
+import { IoMdAddCircleOutline } from "react-icons/io";
 
 const Templates = () => {
   const navigate = useNavigate();
@@ -45,72 +10,58 @@ const Templates = () => {
 
   const handleSelect = (key) => {
     const selected = Themes[key];
-    console.log(selected)
     if (!selected) return;
 
-    setTemplate({
-      theme: selected.theme,
-      id: key,
-    });
+    setTemplate({ theme: selected.theme, id: key });
   };
 
   useEffect(() => {
     if (isTemplateReady) {
-
       navigate("/invoiceform");
       setIsTemplateReady(false);
     }
   }, [isTemplateReady, navigate, setIsTemplateReady]);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 py-12 px-6">
-      <div className="max-w-7xl mx-auto">
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-4xl font-bold text-center text-blue-900 mb-10"
-        >
-          Select Your Invoice Template
-        </motion.h1>
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-        >
-          <AnimatePresence>
-            {Object.keys(Themes).map((key, index) => {
-              const { name, src } = Themes[key];
-              return (
-                <motion.div
-                  key={key}
-                  variants={cardVariants}
-                  whileHover="hover"
-                  className="bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer border border-gray-100"
-                  onClick={() => handleSelect(key)}
-                >
-                  <motion.div variants={hoverVariants}>
-                    <img
-                      src={src}
-                      alt={`${name} Preview`}
-                      className="w-full h-48 object-cover transition-transform duration-300"
-                    />
-                    <div className="p-6">
-                      <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-semibold text-gray-800">{name}</h2>
-                        <IoMdAddCircle className="text-blue-900 text-2xl opacity-80 hover:opacity-100 transition-opacity duration-200" />
-                      </div>
-                      <p className="mt-2 text-sm text-gray-500">
-                        Professional and clean design for {name.toLowerCase()} invoices
-                      </p>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-white to-slate-100 px-6 py-12 text-blue-900">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-extrabold text-center mb-10">
+          Choose a Template
+        </h1>
+
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {Object.entries(Themes).map(([key, { name, src }]) => (
+            <div
+              key={key}
+              onClick={() => handleSelect(key)}
+              className="group rounded-2xl bg-white overflow-hidden border border-gray-200 shadow hover:shadow-xl cursor-pointer transition-all duration-300"
+            >
+              <div className="relative">
+                <img
+                  src={src}
+                  alt={`${name} Template`}
+                  className="w-full h-52 object-cover group-hover:opacity-90 transition duration-300"
+                />
+                <div className="absolute top-2 right-2 bg-blue-100 p-2 rounded-full text-blue-800 shadow">
+                  <IoMdAddCircleOutline size={24} />
+                </div>
+              </div>
+              <div className="px-5 py-4">
+                <h3 className="text-xl font-semibold mb-1">{name}</h3>
+                <p className="text-sm text-gray-600">
+                  Sleek and professional layout for all business needs.
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-center mt-12 text-sm text-gray-500">
+          Need more templates?{" "}
+          <span className="underline cursor-pointer hover:text-blue-700">
+            Contact Us
+          </span>
+        </p>
       </div>
     </div>
   );

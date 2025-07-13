@@ -1,29 +1,30 @@
-import React from "react";
+import React,{Suspense,lazy} from "react";
 import "./App.css";
 import "flowbite";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./components/Generic/Layout";
 import Home from "./components/Generic/Home";
-import Login from "./components/Generic/Login";
-import Register from "./components/Generic/Register";
-import NotFound from "./components/Generic/NotFound";
-
-import Templates from "./components/Invoicing/Templates";
-import InvoiceForm from "./components/Invoicing/InvoiceForm";
-import InvoicePDF from "./components/Invoicing/InvoicePDF";
-import Invoices from "./components/Invoicing/Invoices";
-import InvoiceSelection from "./components/Invoicing/InvoiceSelection";
-
-import DocumentTypeSelection from "./components/Documents/DocumentTypeSelection";
-import DocumentForm from "./components/Documents/DocumentForm";
-import DocumentPDF from "./components/Documents/DocumentPDF";
+//lazy loading
+const Login=lazy(()=>import ("./components/Generic/Login"));
+const NotFound = lazy(() => import("./components/Generic/NotFound"));
+const Templates=lazy(()=>import("./components/Invoicing/Templates"));
+const Register = lazy(() => import("./components/Generic/Register"));
+const InvoiceForm = lazy(() => import("./components/Invoicing/InvoiceForm"));
+const InvoicePDF = lazy(() => import("./components/Invoicing/InvoicePDF"));
+const Invoices = lazy(() => import("./components/Invoicing/Invoices"));
+const InvoiceSelection = lazy(() => import("./components/Invoicing/InvoiceSelection"));
+const DocumentTypeSelection = lazy(() => import("./components/Documents/DocumentTypeSelection"));
+const DocumentForm = lazy(() => import("./components/Documents/DocumentForm"));
+const DocumentPDF = lazy(() => import("./components/Documents/DocumentPDF"));
 
 import AuthRequired from "../Auth/AuthRequired";
+import SuspenseLoader from "./components/Generic/SuspenseLoader";
 
 function App() {
   return (
     <BrowserRouter>
+    <Suspense fallback={<SuspenseLoader/>}>
       <Routes>
         <Route path="/" element={<Layout />}>
           {/* 🏠 Home */}
@@ -49,6 +50,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
+
+    </Suspense>
     </BrowserRouter>
   );
 }
