@@ -1,6 +1,6 @@
-import { MongoClient } from 'mongodb';
 import dotenv from "dotenv"
 dotenv.config()
+import { MongoClient } from 'mongodb';
 const url = process.env.MONGODB_URI;
 const dbName = 'invoice_backend';
 

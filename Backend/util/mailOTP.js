@@ -1,21 +1,25 @@
+import dotenv from "dotenv"
+dotenv.config()
 import nodemailer from 'nodemailer'
-function mailOTP(email,otp) {
+function mailOTP(email, otp) {
+  const autherEmail = process.env.EMAIL
+  const key = process.env.EMAIL_KEY
   return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'ishantahuja2309@gmail.com',
-                pass: 'ybzeilkspyrzflht', // Gmail App Password
+        user: autherEmail,
+        pass: key, // Gmail App Password
       },
     });
 
     console.log(email, otp); // ✅ Correct
 
-const mailOptions = {
-  from: 'ishantahuja2309@gmail.com',
-  to: email,
-  subject: '🔐 Your OTP for Password Reset - InvoiceEase',
-  html: `
+    const mailOptions = {
+      from: autherEmail,
+      to: email,
+      subject: '🔐 Your OTP for Password Reset - InvoiceEase',
+      html: `
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -55,7 +59,7 @@ const mailOptions = {
   </body>
   </html>
   `,
-};
+    };
 
 
     transporter.sendMail(mailOptions, (error, info) => {

@@ -1,3 +1,5 @@
+import dotenv from "dotenv"
+dotenv.config()
 import bcrypt from 'bcrypt';
 import { getDB } from '../../Backend/Mongo/mongo.js';
 import jwt from 'jsonwebtoken';

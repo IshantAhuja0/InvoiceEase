@@ -1,5 +1,5 @@
-// import dotenv from 'dotenv'
-// dotenv.config();
+import dotenv from 'dotenv'
+dotenv.config();
 import cookieParser from "cookie-parser";
 import express from "express";
 import cors from "cors";
@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 });
 
 app.use('/api', route);
-app.use('/api/healthcheck', (req,res)=>{
+app.get('/api/healthcheck', (req,res)=>{
   res.status(200).send("server is running fine. Health 100%")
 });
 app.use('/api/protected', verifyJWT,authRoute);

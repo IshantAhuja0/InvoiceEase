@@ -1,3 +1,5 @@
+import dotenv from "dotenv"
+dotenv.config()
 import { getDB } from "../Mongo/mongo.js"
 import mongodb from "mongodb";
 const ObjectId = mongodb.ObjectId;
