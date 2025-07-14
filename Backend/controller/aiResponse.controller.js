@@ -4,7 +4,7 @@ const aiResponse = async (req, res) => {
   const { prompt } = req.body
   try {
     const api = process.env.OPEN_AI_API;
-    const apiKey = process.env.OPEN_AI_API;
+    const apiKey = process.env.OPEN_AI_API_KEY;
     if (!prompt || prompt.trim().length === 0) return res.status(400).json({ status: 400, data: "prompt is required to get doc content" })
     const response = await fetch(api, {
       method: "POST",
