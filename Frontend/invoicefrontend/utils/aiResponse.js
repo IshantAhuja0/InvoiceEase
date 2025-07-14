@@ -13,7 +13,6 @@ function calculateEndDate(startDate, durationInMonths) {
 }
 
 export async function aiResponse(formData, type) {
-  const apiKey = import.meta.env.VITE_OPEN_AI_KEY;
   let prompt = "";
 
   switch (type) {
@@ -91,26 +90,12 @@ Keep it between 100 and 160 words. Mention growth, trust, and expectations brief
   }
 
   try {
-    const response = await axios.post(
-      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-      {
-        model: "gemini-2.0-flash",
-        messages: [
-          {
-            role: "user",
-            content: prompt.trim(),
-          },
-        ],
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-      }
-    );
-
-    return response.data.choices?.[0]?.message?.content || "⚠️ AI did not return content.";
+   const response=await axios.get("http://localhost:8080/api/doc-content",
+    {
+      prompt:prompt
+    }
+   )
+   return response.data
   } catch (error) {
     console.error("AI generation error:", error.response?.data || error.message);
     return "⚠️ Failed to generate content.";
