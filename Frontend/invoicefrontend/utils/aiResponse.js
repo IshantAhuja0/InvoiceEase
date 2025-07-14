@@ -90,7 +90,8 @@ Keep it between 100 and 160 words. Mention growth, trust, and expectations brief
   }
 
   try {
-   const response=await axios.get("http://localhost:8080/api/doc-content",
+const base_api=import.meta.env.VITE_BACKEND_BASE_URL
+   const response=await axios.get(`${base_api}/doc-content`,
     {
       prompt:prompt
     }
