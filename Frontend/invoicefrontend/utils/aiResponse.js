@@ -94,7 +94,7 @@ try {
     prompt: prompt,
   });
 
-  return response.data;
+  return response.data.data;
 } catch (error) {
   const errorMessage = error.response?.data?.message || error.response?.data || error.message || "Unknown error";
   console.error("AI generation error:", errorMessage);
