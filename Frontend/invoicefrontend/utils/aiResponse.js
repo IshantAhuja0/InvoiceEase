@@ -88,17 +88,17 @@ Keep it between 100 and 160 words. Mention growth, trust, and expectations brief
     default:
       return "❌ Unknown document type. Cannot generate content.";
   }
+try {
+  const base_api = import.meta.env.VITE_BACKEND_BASE_URL;
+  const response = await axios.post(`${base_api}/doc-content`, {
+    prompt: prompt,
+  });
 
-  try {
-const base_api=import.meta.env.VITE_BACKEND_BASE_URL
-   const response=await axios.get(`${base_api}/doc-content`,
-    {
-      prompt:prompt
-    }
-   )
-   return response.data
-  } catch (error) {
-    console.error("AI generation error:", error.response?.data || error.message);
-    return "⚠️ Failed to generate content.";
-  }
+  return response.data;
+} catch (error) {
+  const errorMessage = error.response?.data?.message || error.response?.data || error.message || "Unknown error";
+  console.error("AI generation error:", errorMessage);
+  return "⚠️ Failed to generate content.";
+}
+
 }
