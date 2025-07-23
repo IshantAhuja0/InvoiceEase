@@ -1,24 +1,21 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   Home,
   FileText,
-  LayoutTemplate,
   LogIn,
   LogOut,
   UserPlus,
   FileInput
 } from "lucide-react";
-import { AuthContext } from "../../../Context/AuthContext";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../../Redux/Features/Auth/authSlice";
-export default function Sidebar({ isOpen, sidebarRef }) {
-  // const { user, logout } = useContext(AuthContext);
-   const user=useSelector(state=>state.auth.user)
-  const IconLogout = LogOut;
-  const dispatch=useDispatch()
+
+export default function Sidebar({ isOpen, sidebarRef, setIsOpen }) {
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const baseMenu = [
     { name: "Home", icon: Home, path: "" },
@@ -31,43 +28,40 @@ export default function Sidebar({ isOpen, sidebarRef }) {
     { name: "Register", icon: UserPlus, path: "register" },
   ];
 
-  // const authMenu = [
-  //   {
-  //     name: "Logout",
-  //     icon: LogOut,
-  //     path: "", // You can handle it with a click event instead of routing
-  //     onClick: logout,
-  //   },
-  // ];
-  const menuItems = user.email.trim().length!==0
-    ? [...baseMenu]
-    : [...baseMenu, ...guestMenu];
+  const menuItems =
+    user.email.trim().length !== 0
+      ? [...baseMenu]
+      : [...baseMenu, ...guestMenu];
 
-    const navigate=useNavigate()
   const handleLogout = async () => {
-            const baseurl = import.meta.env.VITE_BACKEND_PROTECTED_URL;
-        console.log("base" + baseurl);
+    const baseurl = import.meta.env.VITE_BACKEND_PROTECTED_URL;
     try {
       const result = await axios.post(
         `${baseurl}/logout`,
         {},
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
-      console.log("logging out")
-      dispatch(logout())
+      console.log("logging out");
+      dispatch(logout());
       if (result.status === 200) {
         console.log(result.data.message);
-        navigate("/")
-      }
-      else{
-        console.log("problem while logging out user")
+        navigate("/");
+      } else {
+        console.log("problem while logging out user");
       }
     } catch (error) {
       console.log("failed to logout : " + error.message);
+    } finally {
+      if (window.innerWidth < 1024) setIsOpen(false); // ✅ Close on mobile after logout
     }
   };
+
+  const handleItemClick = () => {
+    if (window.innerWidth < 1024) {
+      setIsOpen(false); // ✅ Auto-close after clicking an item
+    }
+  };
+
   return (
     <aside
       ref={sidebarRef}
@@ -84,6 +78,7 @@ export default function Sidebar({ isOpen, sidebarRef }) {
               <li key={item.name}>
                 <NavLink
                   to={`/${item.path}`}
+                  onClick={handleItemClick} // ✅ Auto-close on mobile
                   className={({ isActive }) =>
                     `flex items-center gap-3 p-2 rounded-lg transition-colors duration-300 ${
                       isActive
@@ -98,10 +93,10 @@ export default function Sidebar({ isOpen, sidebarRef }) {
               </li>
             );
           })}
-          {user.email.trim().length!==0 && (
+          {user.email.trim().length !== 0 && (
             <li onClick={handleLogout}>
               <div className="flex items-center gap-3 p-2 rounded-lg transition-colors duration-300 text-white hover:bg-white/10">
-                <IconLogout className="w-5 h-5 shrink-0" />
+                <LogOut className="w-5 h-5 shrink-0" />
                 <span className="truncate">Logout</span>
               </div>
             </li>

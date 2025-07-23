@@ -1,4 +1,4 @@
-# 📄 InvoiceEase
+# 📄 DocSprint
 
 [![Live Demo](https://img.shields.io/badge/Live-Demo-blue?style=for-the-badge&logo=vercel)](https://invoice-ease-iota.vercel.app/)
 
@@ -40,7 +40,7 @@ A sleek and professional **MERN-based invoicing and document generator app** tha
 ## 📁 Folder Structure
 
 ```text
-InvoiceEase/
+DocSprint/
 ├── public/
 │ └── index.html
 ├── src/
@@ -65,8 +65,8 @@ InvoiceEase/
 
 ```bash
 # Clone the repo
-git clone https://github.com/yourusername/invoiceease.git
-cd invoiceease
+git clone https://github.com/yourusername/docsprint.git
+cd docsprint   
 
 # Install frontend dependencies
 npm install

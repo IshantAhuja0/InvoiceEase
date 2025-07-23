@@ -78,7 +78,7 @@ useEffect(() => {
           <div className="flex items-center gap-3">
             <img
               className="h-12 rounded-2xl sm:block hidden"
-              src="https://i.postimg.cc/xdWwQqtR/Invoice-Ease.png"
+              src="https://i.postimg.cc/y6R6gjts/invoice-1.png"
               alt="Logo"
             />
             <span className="text-2xl font-semibold text-white">

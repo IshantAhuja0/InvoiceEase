@@ -68,7 +68,8 @@ const Layout = () => {
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {/* Sidebar */}
-      <Sidebar isOpen={isOpen} sidebarRef={sidebarRef} />
+<Sidebar isOpen={isOpen} sidebarRef={sidebarRef} setIsOpen={setIsOpen} />
+
 
       {/* Right side: Navbar + Content */}
       <div className="flex flex-col flex-1 h-screen">
