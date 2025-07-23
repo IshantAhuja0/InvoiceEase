@@ -92,7 +92,7 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Join InvoiceEase Today
+            Join DocSprint Today
           </motion.h2>
           <motion.p
             className="text-center text-blue-800 text-sm mb-4 sm:mb-6"

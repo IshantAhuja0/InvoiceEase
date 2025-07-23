@@ -77,7 +77,7 @@ export default function Home() {
           <div className="text-center max-w-4xl mx-auto mb-20">
             <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-tight">
               <span className="bg-gradient-to-r from-blue-900 to-blue-600 text-transparent bg-clip-text">
-                InvoiceEase
+                DocSprint
               </span>
             </h1>
             <p className="text-lg sm:text-xl mt-6 text-blue-800">
@@ -153,7 +153,7 @@ export default function Home() {
         <FloatingElement delay={800}>
           <div className="mt-24 bg-white border border-blue-100 rounded-3xl p-10 text-center max-w-4xl mx-auto shadow">
             <p className="text-xl italic text-blue-800 mb-4">
-              “InvoiceEase helped me send invoices and offer letters faster than ever. It’s a game changer!”
+              DocSprint helped me send invoices and offer letters faster than ever. It’s a game changer!”
             </p>
             <span className="block text-blue-600 font-semibold">— A Freelancer, Delhi</span>
           </div>
@@ -167,7 +167,7 @@ export default function Home() {
                 Ready to simplify your work?
               </h3>
               <p className="text-blue-800 mb-8">
-                Join professionals using InvoiceEase to create stunning invoices and documents.
+                Join professionals using DocSprint to create stunning invoices and documents.
               </p>
               <button
                 onClick={() => navigate("/register")}

@@ -8,12 +8,12 @@ import { useDispatch } from "react-redux";
 export default function Navbar({ toggleSidebar }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const[authorName,setAuthorName]=useState("InvoiceEase User")
+  const[authorName,setAuthorName]=useState("DocSprint User")
   const dispatch=useDispatch()
   let user=useSelector(state=>state.auth.user)
   user=user.email.trim()
 useEffect(() => {
-  user.length!==0?setAuthorName(user.split('@')[0]):setAuthorName("InvoiceEase User");
+  user.length!==0?setAuthorName(user.split('@')[0]):setAuthorName("DocSprint User");
 }, [user]);
 
   // Close dropdown when clicking outside
@@ -82,7 +82,7 @@ useEffect(() => {
               alt="Logo"
             />
             <span className="text-2xl font-semibold text-white">
-              InvoiceEase
+              DocSprint
             </span>
           </div>
         </div>
@@ -96,7 +96,7 @@ useEffect(() => {
             <div className="hidden md:block text-right">
               <p className="text-sm font-medium">{authorName}</p>
               <p className="text-xs text-gray-300">
-                {user||"invoiceEase_user@gmail.com"}
+                {user||"docSprint_user@gmail.com"}
               </p>
             </div>
             <img

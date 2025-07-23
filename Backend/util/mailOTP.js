@@ -18,7 +18,7 @@ function mailOTP(email, otp) {
     const mailOptions = {
       from: autherEmail,
       to: email,
-      subject: '🔐 Your OTP for Password Reset - InvoiceEase',
+      subject: '🔐 Your OTP for Password Reset - DocSprint',
       html: `
   <!DOCTYPE html>
   <html lang="en">
@@ -52,7 +52,7 @@ function mailOTP(email, otp) {
         </p>
 
         <p style="font-size: 12px; color: #9ca3af; text-align: center;">
-          This is an automated message from <strong>InvoiceEase</strong>.
+          This is an automated message from <strong>DocSprint</strong>.
         </p>
       </div>
     </div>

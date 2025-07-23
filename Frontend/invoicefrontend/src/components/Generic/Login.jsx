@@ -200,7 +200,7 @@ export default function Login() {
         </motion.div>
 
         <h2 className="text-2xl font-bold text-center text-blue-900 mt-6 mb-2">
-          Login to InvoiceEase
+          Login to DocSprint
         </h2>
         <p className="text-center text-blue-800 text-sm mb-4">
           Welcome back! Generate and store invoices.
