@@ -9,7 +9,7 @@ import authRoute from "./Routes/authRoute.js";
 import verifyJWT from "./Middlewares/verifyJWT.js";
 const app = express();
 app.use(cors({
-  origin: ['https://invoice-ease-iota.vercel.app','http://localhost:5173','https://doc-sprint.vercel.app/'],
+  origin: ['https://invoice-ease-iota.vercel.app','http://localhost:5173','https://doc-sprint.vercel.app'],
   credentials: true               
 }));
 app.use(express.json());
