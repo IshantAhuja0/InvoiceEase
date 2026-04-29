@@ -32,9 +32,16 @@ app.use('/api/protected', verifyJWT,authRoute);
 // Connect DB and start server
  connectDB()
 .then(()=>{
-  app.listen(PORT, () => {
+  app.listen(PORT,"0.0.0.0", () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
   })
 })
 .catch ((err)=> console.error("❌ Failed to connect to DB or start server:", err))
 
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled Rejection:", err);
+});
